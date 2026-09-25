@@ -1,0 +1,2088 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Дорогами замков Беларуси</title>
+<meta name="description" content="Интерактивный путеводитель по замкам, дворцам и укреплениям Беларуси: карта, история, легенды, сравнение «Было / Стало».">
+
+<!-- Иконка сайта (favicon): встроена прямо в файл, запасной вариант — favicon.svg -->
+<meta name="theme-color" content="#1a1a1a">
+<link rel="icon" type="image/svg+xml" href="favicon.svg" id="favicon">
+<script>
+const SITE_LOGO = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <radialGradient id="fvBg" cx="50%" cy="35%" r="75%"><stop offset="0" stop-color="#3a3120"/><stop offset="1" stop-color="#121212"/></radialGradient>
+    <linearGradient id="fvGold" gradientUnits="userSpaceOnUse" x1="0" y1="11" x2="0" y2="53"><stop offset="0" stop-color="#fff1b8"/><stop offset="0.45" stop-color="#d4af37"/><stop offset="1" stop-color="#9c7c1c"/></linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#fvBg)" stroke="#d4af37" stroke-width="2.5"/>
+  <path fill="#f1d77a" d="M14 9.5l1 2.1 2.3.3-1.7 1.6.4 2.3-2-1.1-2 1.1.4-2.3-1.7-1.6 2.3-.3z"/>
+  <circle cx="50" cy="12" r="1" fill="#f1d77a" opacity=".8"/><circle cx="54.5" cy="17" r=".7" fill="#f1d77a" opacity=".6"/>
+  <path d="M32 11.5V5" stroke="#d4af37" stroke-width="1.3" stroke-linecap="round"/>
+  <path d="M32.6 5l6.4 1.7-6.4 1.7z" fill="#c8553d"/>
+  <g fill="url(#fvGold)">
+    <rect x="11" y="27" width="11" height="23"/><rect x="11" y="24" width="3" height="3.5"/><rect x="15" y="24" width="3" height="3.5"/><rect x="19" y="24" width="3" height="3.5"/>
+    <rect x="42" y="27" width="11" height="23"/><rect x="42" y="24" width="3" height="3.5"/><rect x="46" y="24" width="3" height="3.5"/><rect x="50" y="24" width="3" height="3.5"/>
+    <rect x="22" y="34" width="20" height="16"/><rect x="22.5" y="31" width="2.5" height="3.5"/><rect x="39" y="31" width="2.5" height="3.5"/>
+    <rect x="26" y="22" width="12" height="28"/><polygon points="24.5,22.5 32,11 39.5,22.5"/>
+    <rect x="8" y="50" width="48" height="3.2" rx="1.6"/>
+  </g>
+  <g fill="#1a1a1a">
+    <rect x="15.7" y="31" width="1.6" height="4.5" rx=".8"/><rect x="46.7" y="31" width="1.6" height="4.5" rx=".8"/>
+    <path d="M30.8 30.5v-2.6a1.2 1.2 0 0 1 2.4 0v2.6z"/><path d="M28 50v-6.5a4 4 0 0 1 8 0V50z"/>
+  </g>
+  <path d="M29.5 50v-6.3a2.5 2.5 0 0 1 5 0V50" fill="none" stroke="#d4af37" stroke-width=".6" opacity=".7"/>
+</svg>`;
+document.getElementById('favicon').href = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(SITE_LOGO);
+</script>
+
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#1a1a1a;
+  --bg2:#141414;
+  --card:#232323;
+  --card2:#2a2a2a;
+  --gold:#d4af37;
+  --gold2:#f1d77a;
+  --text:#ece7da;
+  --muted:#a39d8f;
+  --line:rgba(212,175,55,.25);
+  --radius:14px;
+  --c-castle:#9b2c2c;
+  --c-palace:#2b5f93;
+  --c-ruins:#6d635a;
+  --c-restoring:#c9821a;
+  --c-battle:#2a2a2a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;line-height:1.6;overflow-x:hidden}
+body.no-scroll{overflow:hidden}
+h1,h2,h3,h4,.serif{font-family:'Playfair Display',Georgia,serif;line-height:1.2}
+a{color:var(--gold);text-decoration:none}
+img{display:block;max-width:100%}
+button{font-family:inherit;cursor:pointer}
+::selection{background:var(--gold);color:#111}
+
+
+.i{width:1.05em;height:1.05em;display:inline-block;vertical-align:-0.17em;flex:none}
+
+
+#progress{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--gold),var(--gold2));z-index:3000;transition:width .1s linear}
+
+
+.topbar{position:sticky;top:0;z-index:1500;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 5vw;background:rgba(20,20,20,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.brand{display:inline-flex;align-items:center;gap:8px;font-family:'Playfair Display',serif;font-weight:700;font-size:1.1rem;color:var(--gold);white-space:nowrap}
+.brand .i{width:1.35em;height:1.35em}
+.toplinks{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.toplinks::-webkit-scrollbar{display:none}
+.toplinks a{color:var(--text);font-size:.9rem;padding:6px 12px;border-radius:999px;white-space:nowrap;transition:.25s}
+.toplinks a:hover{background:rgba(212,175,55,.12);color:var(--gold)}
+
+header.hero{position:relative;min-height:78vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 6vw 150px;overflow:hidden;
+  background:
+    radial-gradient(ellipse at 50% 0%,rgba(212,175,55,.18),transparent 60%),
+    radial-gradient(circle at 80% 30%,rgba(90,70,140,.18),transparent 45%),
+    linear-gradient(180deg,#0e0e12 0%,#1a1a1a 100%);}
+.hero .stars{position:absolute;inset:0;pointer-events:none}
+.hero .stars i{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;opacity:.5;animation:twinkle 3s infinite ease-in-out}
+@keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.9}}
+.hero-kicker{letter-spacing:.35em;text-transform:uppercase;font-size:.8rem;color:var(--gold);margin-bottom:18px;animation:fadeIn 1s ease both}
+.hero h1{font-size:clamp(2.2rem,6.5vw,5rem);font-weight:900;background:linear-gradient(180deg,#fff3c4,var(--gold) 60%,#9c7c1c);-webkit-background-clip:text;background-clip:text;color:transparent;animation:fadeIn 1s .15s ease both}
+.hero .subtitle{font-family:'Playfair Display',serif;font-style:italic;font-size:clamp(1.05rem,2.4vw,1.5rem);color:var(--muted);margin-top:14px;animation:fadeIn 1s .3s ease both}
+.ornament{display:flex;align-items:center;justify-content:center;gap:14px;color:var(--gold);margin:22px auto;animation:fadeIn 1s .4s ease both}
+.ornament::before,.ornament::after{content:"";height:1px;width:80px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.stats{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-top:10px;animation:fadeIn 1s .5s ease both}
+.stat{min-width:120px;padding:14px 18px;border:1px solid var(--line);border-radius:var(--radius);background:rgba(255,255,255,.03)}
+.stat b{display:block;font-family:'Playfair Display',serif;font-size:2rem;color:var(--gold)}
+.stat span{font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.hero-cta{margin-top:30px;animation:fadeIn 1s .65s ease both}
+.hero-skyline{position:absolute;left:0;right:0;bottom:0;width:100%;height:140px}
+.scroll-hint{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);color:var(--gold);animation:bounce 2s infinite;z-index:2}
+.scroll-hint .i{width:28px;height:28px}
+@keyframes bounce{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,8px)}}
+
+
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:999px;border:1px solid var(--gold);background:linear-gradient(180deg,#e2c25a,var(--gold));color:#1a1a1a;font-weight:700;font-size:.92rem;transition:.25s;box-shadow:0 6px 20px rgba(212,175,55,.2)}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(212,175,55,.35)}
+.btn-ghost{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--text);font-size:.9rem;transition:.25s}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
+.btn-sm{padding:7px 16px;font-size:.82rem}
+
+
+section{padding:80px 0}
+.container{width:min(1200px,90vw);margin:0 auto}
+.section-head{text-align:center;margin-bottom:36px}
+.section-head .kicker{color:var(--gold);letter-spacing:.3em;text-transform:uppercase;font-size:.75rem}
+.section-head h2{font-size:clamp(1.8rem,4vw,2.8rem);margin:8px 0 10px}
+.section-head p{color:var(--muted);max-width:720px;margin:0 auto}
+
+
+nav.filters{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-bottom:14px}
+nav.filters button{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--text);font-size:.92rem;transition:.25s}
+nav.filters button:hover{border-color:var(--gold);color:var(--gold)}
+nav.filters button.active{background:var(--gold);color:#1a1a1a;border-color:var(--gold);font-weight:700;box-shadow:0 0 20px rgba(212,175,55,.35)}
+nav.filters button small{opacity:.7}
+.filter-info{text-align:center;color:var(--muted);font-size:.88rem;margin-bottom:18px}
+
+
+#map{width:100%;height:65vh;min-height:380px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#e8e4da;z-index:1}
+.map-error{height:100%;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;color:#7a5c00;background:#f3efe4}
+.pin-icon{background:none!important;border:none!important}
+.pin{position:relative;width:40px;height:52px;transform-origin:50% 100%;transition:transform .2s;filter:drop-shadow(0 4px 5px rgba(0,0,0,.4))}
+.pin:hover{transform:scale(1.18)}
+.pin svg.shape{position:absolute;inset:0;width:40px;height:52px}
+.pin svg.shape path{stroke:#fff;stroke-width:2.5}
+.pin .pin-ico{position:absolute;left:9px;top:8px;width:22px;height:22px;color:#fff;display:flex;align-items:center;justify-content:center}
+.pin .pin-ico .i{width:21px;height:21px}
+.pin.small{width:34px;height:44px}
+.pin.small svg.shape{width:34px;height:44px}
+.pin.small .pin-ico{left:8px;top:7px;width:18px;height:18px}
+.pin.small .pin-ico .i{width:17px;height:17px}
+
+.leaflet-popup-content-wrapper{background:#1f1f1f;color:var(--text);border:1px solid var(--line);border-radius:12px;padding:0;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.leaflet-popup-tip{background:#1f1f1f}
+.leaflet-popup-content{margin:0;font-family:Arial,sans-serif}
+.leaflet-container a.leaflet-popup-close-button{color:#fff;text-shadow:0 0 4px #000;font-size:22px;top:6px;right:6px;width:26px;height:26px;background:rgba(0,0,0,.45);border-radius:50%;line-height:24px;text-align:center}
+.popup img{width:100%;height:130px;object-fit:cover;background:#111}
+.popup-body{padding:12px 14px 14px}
+.popup-body h4{color:var(--gold);font-size:1.05rem;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.popup-body p{margin:3px 0!important;font-size:.84rem;color:var(--text);display:flex;gap:6px;align-items:flex-start}
+.popup-body p .i{color:var(--gold);margin-top:2px}
+.popup-body .btn{margin-top:10px}
+.map-legend{background:rgba(255,255,255,.95);border:1px solid rgba(0,0,0,.12);border-radius:10px;padding:10px 12px;color:#2a2a2a;font-size:.82rem;line-height:1.5;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.map-legend b{display:block;color:#6b5210;font-family:'Playfair Display',serif;font-size:.95rem;margin-bottom:6px}
+.lg-row{display:flex;align-items:center;gap:8px;margin:4px 0}
+.mini{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;color:#fff;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35);flex:none}
+.mini .i{width:13px;height:13px}
+.leaflet-bar a{color:#333}
+.leaflet-control-layers{border-radius:10px!important;font-size:.85rem}
+
+
+.badge{display:inline-block;padding:4px 10px;border-radius:999px;font-size:.72rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;backdrop-filter:blur(6px)}
+.status-preserved{background:rgba(40,70,30,.75);color:#bfe6a8;border:1px solid rgba(127,176,105,.6)}
+.status-ruins{background:rgba(90,30,20,.75);color:#ffb3a1;border:1px solid rgba(200,85,61,.6)}
+.status-restoring{background:rgba(20,55,80,.75);color:#a9dcff;border:1px solid rgba(95,168,211,.6)}
+
+
+#castleList{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+.card{background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;transition:transform .3s,box-shadow .3s,border-color .3s}
+.card:hover{transform:translateY(-6px);border-color:var(--line);box-shadow:0 18px 40px rgba(0,0,0,.45),0 0 0 1px rgba(212,175,55,.15)}
+.card-img{position:relative;aspect-ratio:3/2;overflow:hidden;background:#111}
+.card-img img{width:100%;height:100%;object-fit:cover;transition:transform .6s}
+.card:hover .card-img img{transform:scale(1.06)}
+.card-img .badge{position:absolute;top:12px;left:12px}
+.card-img .type-ico{position:absolute;top:10px;right:12px;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;border:2px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.5)}
+.card-img .type-ico .i{width:19px;height:19px}
+.card-body{padding:18px 20px 20px;display:flex;flex-direction:column;flex:1}
+.card-body h3{font-size:1.3rem;color:var(--gold);margin-bottom:4px}
+.place{font-size:.82rem;color:var(--muted);margin-bottom:10px;display:flex;gap:6px}
+.place .i{margin-top:2px}
+.meta{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.84rem;margin-bottom:10px}
+.meta span{display:inline-flex;align-items:center;gap:6px}
+.meta .i{color:var(--gold)}
+.desc{font-size:.9rem;color:#cfc9bb;flex:1;margin-bottom:16px}
+.card-actions{display:flex;gap:10px;flex-wrap:wrap}
+.empty{grid-column:1/-1;text-align:center;color:var(--muted);padding:40px}
+
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.reveal{opacity:0}
+.reveal.visible{animation:fadeIn .8s ease forwards}
+
+
+.compare{position:relative;width:100%;aspect-ratio:3/2;overflow:hidden;border-radius:12px;border:1px solid var(--line);user-select:none;-webkit-user-select:none;background:#111;touch-action:pan-y}
+.compare img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+.compare .cmp-old{clip-path:inset(0 50% 0 0);-webkit-clip-path:inset(0 50% 0 0);z-index:2;background:#2a2218}
+.cmp-divider{position:absolute;top:0;bottom:0;width:3px;margin-left:-1.5px;background:var(--gold);box-shadow:0 0 12px rgba(212,175,55,.8);z-index:3;pointer-events:none;left:50%}
+.cmp-label{position:absolute;top:14px;z-index:4;padding:5px 12px;border-radius:999px;background:rgba(0,0,0,.7);color:var(--gold);font-size:.78rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;pointer-events:none;line-height:1.3}
+.cmp-label small{display:block;font-weight:400;letter-spacing:.02em;text-transform:none;color:#ddd;font-size:.7rem}
+.cmp-label.left{left:14px}
+.cmp-label.right{right:14px;text-align:right}
+.cmp-range{position:absolute;left:0;top:50%;transform:translateY(-50%);width:100%;height:48px;margin:0;background:transparent;-webkit-appearance:none;appearance:none;z-index:5;cursor:ew-resize;outline:none}
+.cmp-range::-webkit-slider-runnable-track{height:48px;background:transparent}
+.cmp-range::-moz-range-track{height:48px;background:transparent}
+.cmp-range::-webkit-slider-thumb{-webkit-appearance:none;width:48px;height:48px;border-radius:50%;border:3px solid #1a1a1a;background:var(--gold) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231a1a1a' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6l-6 6 6 6M15 6l6 6-6 6'/%3E%3C/svg%3E") center/24px no-repeat;box-shadow:0 0 0 2px var(--gold),0 6px 18px rgba(0,0,0,.6);cursor:ew-resize}
+.cmp-range::-moz-range-thumb{width:42px;height:42px;border-radius:50%;border:3px solid #1a1a1a;background:var(--gold) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231a1a1a' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6l-6 6 6 6M15 6l6 6-6 6'/%3E%3C/svg%3E") center/24px no-repeat;box-shadow:0 0 0 2px var(--gold),0 6px 18px rgba(0,0,0,.6);cursor:ew-resize}
+.cmp-range:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 4px #fff}
+.hint{font-size:.82rem;color:var(--muted);text-align:center;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:6px}
+.credit{font-size:.75rem;color:#7d776a;margin-top:6px;text-align:center}
+.credit a{color:#b59a4a}
+
+#compare{background:linear-gradient(180deg,var(--bg),var(--bg2))}
+.compare-wrap{display:grid;grid-template-columns:1.5fr 1fr;gap:30px;align-items:center}
+.compare-info h3{font-size:1.8rem;color:var(--gold);margin-bottom:8px}
+.compare-info p{color:#cfc9bb;margin-bottom:12px}
+.compare-info .meta{margin-bottom:12px}
+.select{width:100%;padding:12px 14px;border-radius:10px;background:var(--card);color:var(--text);border:1px solid var(--line);font-size:1rem;margin-bottom:20px}
+.select:focus{outline:2px solid var(--gold)}
+
+
+.tabs{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-bottom:40px}
+.tabs button{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--text);transition:.25s;font-size:.92rem}
+.tabs button.active,.tabs button:hover{background:var(--gold);color:#1a1a1a;border-color:var(--gold)}
+.tl{position:relative;max-width:980px;margin:0 auto}
+.tl::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:2px;background:linear-gradient(180deg,transparent,var(--gold) 5%,var(--gold) 95%,transparent);transform:translateX(-50%)}
+.tl-item{position:relative;width:50%;padding:0 40px 36px}
+.tl-item:nth-child(odd){left:0;text-align:right}
+.tl-item:nth-child(even){left:50%}
+.tl-item::after{content:"";position:absolute;top:8px;width:16px;height:16px;border-radius:50%;background:var(--bg);border:3px solid var(--gold);box-shadow:0 0 12px rgba(212,175,55,.7)}
+.tl-item:nth-child(odd)::after{right:-8px}
+.tl-item:nth-child(even)::after{left:-8px}
+.tl-card{background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:16px 20px;transition:.3s}
+.tl-card:hover{border-color:var(--line);transform:translateY(-3px)}
+.tl-year{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;color:var(--gold)}
+.tl-card h4{font-size:1.1rem;margin:2px 0 6px}
+.tl-card p{font-size:.9rem;color:#cfc9bb}
+
+
+#legends{background:radial-gradient(ellipse at 50% 0%,rgba(120,90,170,.12),transparent 60%),var(--bg2)}
+.legend-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+.flip{perspective:1200px;height:380px;cursor:pointer}
+.flip-inner{position:relative;width:100%;height:100%;transition:transform .8s cubic-bezier(.2,.8,.2,1);transform-style:preserve-3d}
+@media (hover:hover){.flip:hover .flip-inner{transform:rotateY(180deg)}}
+.flip.flipped .flip-inner{transform:rotateY(180deg)}
+.flip-face{position:absolute;inset:0;border-radius:var(--radius);backface-visibility:hidden;-webkit-backface-visibility:hidden;border:1px solid var(--line);overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px}
+.flip-front{background:radial-gradient(circle at 50% 35%,rgba(212,175,55,.14),transparent 60%),linear-gradient(180deg,#232028,#161616)}
+.legend-art{width:110px;height:110px;animation:float 4s ease-in-out infinite}
+.legend-art svg{width:100%;height:100%}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.flip-front h3{font-size:1.45rem;color:var(--gold);margin:14px 0 6px}
+.flip-front p{color:var(--muted);font-size:.85rem}
+.flip-front .turn{margin-top:18px;font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);opacity:.75;display:flex;align-items:center;gap:6px}
+.flip-back{transform:rotateY(180deg);background:linear-gradient(160deg,#2a2419,#171717);justify-content:space-between}
+.flip-back p{font-size:.9rem;color:#e0d9c7;font-style:italic;font-family:'Playfair Display',serif;line-height:1.55}
+.flip-back h4{color:var(--gold);font-size:1.1rem}
+
+
+.modal{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.82);backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s}
+.modal.open{opacity:1;visibility:visible}
+.modal-content{position:relative;width:100%;max-width:880px;max-height:92vh;overflow-y:auto;background:#1e1e1e;border:1px solid var(--line);border-radius:16px;box-shadow:0 30px 80px rgba(0,0,0,.7);transform:translateY(30px) scale(.97);transition:transform .35s ease}
+.modal.open .modal-content{transform:none}
+.modal-content::-webkit-scrollbar{width:8px}
+.modal-content::-webkit-scrollbar-thumb{background:#444;border-radius:8px}
+.modal-close{position:sticky;top:12px;margin:12px 12px -56px auto;display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:rgba(20,20,20,.85);color:var(--gold);z-index:10;transition:.25s}
+.modal-close .i{width:22px;height:22px}
+.modal-close:hover{background:var(--gold);color:#1a1a1a;transform:rotate(90deg)}
+.modal-hero{position:relative;height:320px;overflow:hidden;background:#111}
+.modal-hero img{width:100%;height:100%;object-fit:cover}
+.modal-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 35%,#1e1e1e 100%)}
+.modal-hero-text{position:absolute;left:28px;right:28px;bottom:18px;z-index:2}
+.modal-hero-text h2{font-size:clamp(1.6rem,4vw,2.5rem);color:#fff;text-shadow:0 2px 12px #000;margin:8px 0 4px;display:flex;align-items:center;gap:12px}
+.modal-hero-text h2 .type-ico{width:40px;height:40px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;border:2px solid #fff;flex:none}
+.modal-hero-text h2 .type-ico .i{width:21px;height:21px;color:#fff}
+.modal-hero-text p{color:#ddd;font-size:.9rem;text-shadow:0 1px 6px #000;display:flex;gap:6px;align-items:center}
+.modal-body{padding:10px 28px 28px}
+.modal-body h3{color:var(--gold);font-size:1.35rem;margin:26px 0 12px;display:flex;align-items:center;gap:10px}
+.modal-body h3::after{content:"";flex:1;height:1px;background:var(--line)}
+.modal-body p{color:#d8d2c3}
+.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:10px}
+.fact{background:var(--card2);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:12px}
+.fact small{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.fact small .i{color:var(--gold)}
+.fact b{font-size:.92rem}
+blockquote.legend{position:relative;background:linear-gradient(135deg,rgba(212,175,55,.08),rgba(255,255,255,.02));border-left:3px solid var(--gold);padding:14px 18px 14px 46px;border-radius:0 10px 10px 0;margin-bottom:12px;font-family:'Playfair Display',serif;font-style:italic;color:#e6dfcd}
+blockquote.legend::before{content:"“";position:absolute;left:14px;top:2px;font-size:2.6rem;color:var(--gold);font-style:normal}
+.modal-actions{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;margin-top:26px}
+.legend-modal-top{padding:50px 28px 10px;text-align:center}
+.legend-modal-top .legend-art{margin:0 auto;width:120px;height:120px}
+.legend-modal-top h2{color:var(--gold);font-size:2rem;margin-top:10px}
+.legend-modal-top p{color:var(--muted);display:flex;justify-content:center;align-items:center;gap:6px}
+
+
+footer{border-top:1px solid var(--line);padding:40px 5vw;text-align:center;color:var(--muted);font-size:.88rem;background:#121212}
+footer .brand{display:inline-flex;font-size:1.4rem;margin-bottom:22px}
+.footer-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:900px;margin:0 auto;text-align:left}
+.footer-col{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px}
+.footer-title{display:flex;align-items:center;gap:8px;font-family:'Playfair Display',serif;color:var(--gold);font-size:1.1rem;margin-bottom:10px}
+.footer-col p{color:#cfc9bb;line-height:1.7}
+.footer-name{color:var(--text)}
+.footer-contest{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+.footer-contest b{color:var(--gold)}
+.footer-mail{display:inline-flex;align-items:center;gap:10px;margin-top:4px;padding:10px 16px;border:1px solid var(--gold);border-radius:999px;color:var(--gold);font-weight:700;word-break:break-all;transition:.25s}
+.footer-mail:hover{background:var(--gold);color:#1a1a1a}
+.footer-copy{margin-top:24px;font-size:.8rem;color:#6f695d}
+@media (max-width:760px){.footer-grid{grid-template-columns:1fr}.footer-col{text-align:center}.footer-title{justify-content:center}}
+#toTop{position:fixed;right:29px;bottom:100px;width:46px;height:46px;border-radius:50%;border:1px solid var(--gold);background:rgba(20,20,20,.9);color:var(--gold);z-index:1600;opacity:0;visibility:hidden;transition:.3s;display:flex;align-items:center;justify-content:center}
+#toTop .i{width:20px;height:20px}
+#toTop.show{opacity:1;visibility:visible}
+#toTop:hover{background:var(--gold);color:#1a1a1a}
+
+
+#chatLauncher{position:fixed;right:20px;bottom:20px;width:64px;height:64px;border-radius:50%;border:2px solid var(--gold);background:radial-gradient(circle at 35% 30%,#3a3526,#141414);z-index:1900;display:flex;align-items:center;justify-content:center;padding:0;animation:chatPulse 2.6s infinite;transition:transform .25s}
+#chatLauncher:hover{transform:scale(1.08)}
+#chatLauncher .knight svg{width:46px;height:46px;display:block}
+#chatLauncher .x{display:none;color:var(--gold)}
+#chatLauncher .x .i{width:26px;height:26px}
+#chatLauncher.open{animation:none;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+#chatLauncher.open .x{display:flex}
+#chatLauncher.open .knight{display:none}
+@keyframes chatPulse{0%{box-shadow:0 10px 30px rgba(0,0,0,.5),0 0 0 0 rgba(212,175,55,.55)}70%{box-shadow:0 10px 30px rgba(0,0,0,.5),0 0 0 16px rgba(212,175,55,0)}100%{box-shadow:0 10px 30px rgba(0,0,0,.5),0 0 0 0 rgba(212,175,55,0)}}
+.kn-eye{transform-box:fill-box;transform-origin:center;animation:knEye 4s infinite}
+@keyframes knEye{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+.chat-badge{position:absolute;top:-3px;right:-3px;min-width:21px;height:21px;border-radius:11px;background:#c8553d;color:#fff;font-size:.72rem;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid #1a1a1a}
+.chat-badge.hide{display:none}
+.chat-teaser{position:fixed;right:98px;bottom:30px;max-width:240px;background:#fff;color:#1a1a1a;padding:11px 15px;border-radius:14px 14px 4px 14px;font-size:.86rem;line-height:1.45;box-shadow:0 10px 30px rgba(0,0,0,.4);z-index:1900;opacity:0;transform:translateY(10px);transition:.35s;pointer-events:none;cursor:pointer}
+.chat-teaser.show{opacity:1;transform:none;pointer-events:auto}
+.chat-teaser b{color:#8a6a12}
+.teaser-x{position:absolute;top:-9px;left:-9px;width:22px;height:22px;border-radius:50%;border:none;background:#333;color:#fff;font-size:14px;line-height:22px;padding:0}
+
+#chatWindow{position:fixed;right:20px;bottom:96px;width:370px;height:560px;max-height:calc(100vh - 120px);background:#1c1c1c;border:1px solid var(--line);border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.6);z-index:1900;display:flex;flex-direction:column;overflow:hidden;transform-origin:bottom right;transform:translateY(20px) scale(.85);opacity:0;visibility:hidden;transition:transform .32s cubic-bezier(.2,.9,.3,1.15),opacity .25s,visibility .32s}
+#chatWindow.open{transform:none;opacity:1;visibility:visible}
+.chat-head{display:flex;align-items:center;gap:12px;padding:14px 16px;background:linear-gradient(135deg,#2c2718,#1c1c1c);border-bottom:1px solid var(--line)}
+.chat-ava{width:46px;height:46px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#3a3526,#141414);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;flex:none}
+.chat-ava svg{width:34px;height:34px}
+.chat-head h4{color:var(--gold);font-size:1.15rem}
+.chat-head small{color:var(--muted);font-size:.76rem;display:flex;align-items:center;gap:6px}
+.online{width:8px;height:8px;border-radius:50%;background:#5cd65c;box-shadow:0 0 6px #5cd65c}
+.chat-x{margin-left:auto;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--gold);display:flex;align-items:center;justify-content:center;flex:none}
+.chat-x .i{width:18px;height:18px}
+.chat-x:hover{background:var(--gold);color:#1a1a1a}
+.chat-body{flex:1;overflow-y:auto;padding:16px 14px;display:flex;flex-direction:column;gap:10px;background:radial-gradient(ellipse at 50% 0%,rgba(212,175,55,.06),transparent 60%)}
+.chat-body::-webkit-scrollbar{width:6px}
+.chat-body::-webkit-scrollbar-thumb{background:#3a3a3a;border-radius:6px}
+.msg{display:flex;gap:8px;align-items:flex-end;animation:msgIn .3s ease}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.msg .m-ava{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--gold);background:#141414;display:flex;align-items:center;justify-content:center;flex:none}
+.msg .m-ava svg{width:21px;height:21px}
+.bubble{padding:10px 13px;border-radius:14px;font-size:.88rem;line-height:1.5;max-width:86%;overflow-wrap:anywhere}
+.msg.bot .bubble{background:#2a2a2a;color:var(--text);border-bottom-left-radius:4px;border:1px solid rgba(255,255,255,.05)}
+.msg.bot .bubble b{color:var(--gold)}
+.msg.user{justify-content:flex-end}
+.msg.user .bubble{background:linear-gradient(180deg,#e2c25a,var(--gold));color:#1a1a1a;border-bottom-right-radius:4px}
+.bubble p+p{margin-top:7px}
+.bubble img{border-radius:10px;margin-top:8px;width:100%;aspect-ratio:3/2;object-fit:cover;background:#111}
+.bubble ul{margin:6px 0 0 18px}
+.facts-mini{display:grid;gap:4px;margin-top:8px;font-size:.8rem;color:#cfc9bb}
+.facts-mini span{display:flex;gap:6px;align-items:flex-start}
+.facts-mini .i{color:var(--gold);margin-top:2px}
+.chat-list{list-style:none;margin:6px 0 0!important;padding:0;display:grid;gap:5px}
+.chat-list span{color:var(--muted);font-size:.78rem}
+.chat-link{background:none;border:none;color:var(--gold);text-decoration:underline;text-underline-offset:3px;font-size:inherit;padding:0;text-align:left;cursor:pointer;font-family:inherit}
+.chat-table{width:100%;border-collapse:collapse;margin-top:8px;font-size:.76rem}
+.chat-table td,.chat-table th{border:1px solid rgba(255,255,255,.08);padding:5px 6px;vertical-align:top;text-align:left}
+.chat-table th{color:var(--gold)}
+.chat-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.chat-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:999px;border:1px solid var(--gold);background:transparent;color:var(--gold);font-size:.76rem;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none}
+.chat-btn:hover{background:var(--gold);color:#1a1a1a}
+.chat-btn .i{width:13px;height:13px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;padding-left:36px;animation:msgIn .3s ease}
+.chip{padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:#232323;color:var(--text);font-size:.78rem;transition:.2s}
+.chip:hover{border-color:var(--gold);color:var(--gold)}
+.typing .bubble{display:flex;gap:4px;padding:13px 14px}
+.typing .bubble span{width:7px;height:7px;border-radius:50%;background:var(--gold);animation:blinkDot 1.2s infinite}
+.typing .bubble span:nth-child(2){animation-delay:.2s}
+.typing .bubble span:nth-child(3){animation-delay:.4s}
+@keyframes blinkDot{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
+.chat-form{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line);background:#181818}
+.chat-form input{flex:1;min-width:0;padding:11px 15px;border-radius:999px;border:1px solid var(--line);background:#242424;color:var(--text);font-size:.92rem;outline:none;font-family:inherit}
+.chat-form input:focus{border-color:var(--gold)}
+.chat-form button{width:44px;height:44px;border-radius:50%;border:none;background:var(--gold);color:#1a1a1a;display:flex;align-items:center;justify-content:center;flex:none;transition:.2s}
+.chat-form button:hover{transform:scale(1.07)}
+.chat-form button .i{width:19px;height:19px}
+@media (max-width:760px){
+  #chatWindow{right:8px;left:8px;width:auto;bottom:84px;height:calc(100vh - 100px);height:calc(100dvh - 100px);max-height:none}
+  #chatLauncher{right:14px;bottom:14px;width:58px;height:58px}
+  #chatLauncher .knight svg{width:42px;height:42px}
+  .chat-teaser{right:84px;bottom:22px;max-width:200px}
+  #toTop{right:20px;bottom:86px}
+}
+
+@media (max-width:1024px){
+  #castleList{grid-template-columns:repeat(2,1fr)}
+  .legend-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:760px){
+  section{padding:60px 0}
+  #castleList{grid-template-columns:1fr}
+  .legend-grid{grid-template-columns:1fr}
+  .compare-wrap{grid-template-columns:1fr}
+  .facts{grid-template-columns:repeat(2,1fr)}
+  .modal{padding:0}
+  .modal-content{max-height:100vh;height:100%;border-radius:0}
+  .modal-hero{height:230px}
+  .modal-body{padding:8px 18px 24px}
+  .modal-hero-text{left:18px;right:18px}
+  .tl::before{left:18px}
+  .tl-item,.tl-item:nth-child(even){width:100%;left:0;text-align:left;padding:0 0 28px 48px}
+  .tl-item:nth-child(odd){text-align:left}
+  .tl-item:nth-child(odd)::after,.tl-item:nth-child(even)::after{left:10px;right:auto}
+  .brand{font-size:1rem}
+  .topbar{padding:10px 4vw}
+  header.hero{min-height:88vh}
+  .stat{min-width:130px;flex:1 1 40%}
+  .flip{height:360px}
+  nav.filters button{padding:9px 14px;font-size:.86rem}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  .reveal{opacity:1}
+}
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<div class="topbar">
+  <a href="#top" class="brand"><span data-icon="castle"></span>Замки Беларуси</a>
+  <div class="toplinks">
+    <a href="#mapSection">Карта</a>
+    <a href="#objects">Объекты</a>
+    <a href="#compare">Было / Стало</a>
+    <a href="#timeline">Таймлайн</a>
+    <a href="#legends">Легенды</a>
+  </div>
+</div>
+
+<header class="hero" id="top">
+  <div class="stars" id="stars"></div>
+  <div class="hero-kicker">Интерактивный путеводитель</div>
+  <h1>Дорогами замков Беларуси</h1>
+  <p class="subtitle">15 объектов культурного наследия</p>
+  <div class="ornament">✦</div>
+  <div class="stats" id="stats"></div>
+  <div class="hero-cta"><a href="#mapSection" class="btn"><span data-icon="map"></span>Открыть карту</a></div>
+  <svg class="hero-skyline" viewBox="0 0 1200 200" preserveAspectRatio="none" aria-hidden="true">
+    <path fill="#161616" d="M0 200 V150 H60 V120 H80 V100 H90 V120 H110 V150 H200 V110 H215 V70 L230 40 L245 70 V110 H260 V150 H380 V130 H400 V95 H420 V130 H440 V150 H560 V100 H575 V60 L600 20 L625 60 V100 H640 V150 H760 V125 H790 V90 L805 65 L820 90 V125 H850 V150 H960 V115 H975 V80 L990 55 L1005 80 V115 H1020 V150 H1100 V130 H1130 V150 H1200 V200Z"/>
+    <path fill="#1a1a1a" d="M0 200 V175 Q300 160 600 172 T1200 168 V200Z"/>
+  </svg>
+  <div class="scroll-hint"><span data-icon="down"></span></div>
+</header>
+
+<main>
+
+  <section id="mapSection" style="padding-bottom:0">
+    <div class="container">
+      <div class="section-head reveal">
+        <div class="kicker">Шаг первый</div>
+        <h2>Интерактивная карта</h2>
+        <p>Нажмите на метку, чтобы узнать о замке или дворце. Цвет и значок метки показывают тип объекта: замок, дворец, руины, восстанавливаемый объект или место знаменитой битвы.</p>
+      </div>
+      <nav class="filters" id="filters" aria-label="Фильтры объектов">
+        <button data-filter="all" class="active"><span data-icon="grid"></span>Все</button>
+        <button data-filter="castle"><span data-icon="castle"></span>Замки</button>
+        <button data-filter="palace"><span data-icon="palace"></span>Дворцы</button>
+        <button data-filter="ruins"><span data-icon="ruins"></span>Руины</button>
+        <button data-filter="preserved"><span data-icon="shield"></span>Сохранённые</button>
+      </nav>
+      <div class="filter-info" id="filterInfo"></div>
+    </div>
+    <div id="map"></div>
+  </section>
+
+  <section id="objects">
+    <div class="container">
+      <div class="section-head reveal">
+        <div class="kicker">Каталог</div>
+        <h2>Замки и дворцы</h2>
+        <p>Крепости времён Великого княжества Литовского, резиденции магнатов и романтические руины.</p>
+      </div>
+      <div id="castleList"></div>
+    </div>
+  </section>
+
+  <section id="compare">
+    <div class="container">
+      <div class="section-head reveal">
+        <div class="kicker">Сквозь века</div>
+        <h2>Было / Стало</h2>
+        <p>Перетаскивайте ползунок, чтобы сравнить облик объекта в прошлом (рисунки Наполеона Орды, архивные фотографии) и сегодня.</p>
+      </div>
+      <div class="compare-wrap reveal">
+        <div id="compareStage"></div>
+        <div class="compare-info">
+          <label for="compareSelect" class="hint" style="justify-content:flex-start;margin-bottom:6px">Выберите объект:</label>
+          <select id="compareSelect" class="select"></select>
+          <div id="compareInfo"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="timeline">
+    <div class="container">
+      <div class="section-head reveal">
+        <div class="kicker">Хроника</div>
+        <h2>Таймлайн замка</h2>
+        <p>История одного замка — от закладки первого камня до наших дней.</p>
+      </div>
+      <div class="tabs" id="tlTabs"></div>
+      <div class="tl" id="timelineBox"></div>
+    </div>
+  </section>
+
+  
+  <section id="legends">
+    <div class="container">
+      <div class="section-head reveal">
+        <div class="kicker">Тайны старых стен</div>
+        <h2>Легенды и мифы</h2>
+        <p>Наведите курсор (или коснитесь) карточки, чтобы перевернуть её, — и узнайте, кто бродит по залам ночью.</p>
+      </div>
+      <div class="legend-grid" id="legendGrid"></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <span class="brand"><span data-icon="castle"></span>Дорогами замков Беларуси</span>
+  <div class="footer-grid">
+    <div class="footer-col">
+      <div class="footer-title"><span data-icon="book"></span>Об авторе</div>
+      <p>Сайт разработал <b class="footer-name">Лыжак Тимур</b>,<br>
+      учащийся 9 «В» класса<br>
+      «Средней школы №11 г. Светлогорска»</p>
+      <p class="footer-contest">для Республиканского конкурса <b>«ПРОТехно»</b></p>
+    </div>
+    <div class="footer-col">
+      <div class="footer-title"><span data-icon="info"></span>Для вопросов и предложений</div>
+      <a class="footer-mail" href="mailto:timurlyzak148@gmail.com">
+        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        timurlyzak148@gmail.com
+      </a>
+    </div>
+  </div>
+  <p class="footer-copy">© <span id="year"></span> Лыжак Тимур · Дорогами замков Беларуси</p>
+</footer>
+
+<button id="toTop" aria-label="Наверх"><span data-icon="up"></span></button>
+
+<div class="chat-teaser" id="chatTeaser"><button class="teaser-x" id="teaserX" aria-label="Скрыть">×</button>Привет! Я <b>Ясь</b> — рыцарь-экскурсовод. Спросите меня о любом замке Беларуси!</div>
+<button id="chatLauncher" aria-label="Открыть чат с рыцарем Ясем">
+  <span class="knight" data-knight></span>
+  <span class="x"><span data-icon="close"></span></span>
+  <span class="chat-badge" id="chatBadge">1</span>
+</button>
+<div id="chatWindow" role="dialog" aria-label="Чат-бот Ясь" aria-hidden="true">
+  <div class="chat-head">
+    <div class="chat-ava" data-knight></div>
+    <div>
+      <h4>Ясь</h4>
+      <small><span class="online"></span>рыцарь-экскурсовод · онлайн</small>
+    </div>
+    <button class="chat-x" id="chatClose" aria-label="Закрыть чат"><span data-icon="close"></span></button>
+  </div>
+  <div class="chat-body" id="chatBody" aria-live="polite"></div>
+  <form class="chat-form" id="chatForm" autocomplete="off">
+    <input id="chatInput" type="text" maxlength="200" placeholder="Например: где находится Мирский замок?" aria-label="Ваш вопрос">
+    <button type="submit" aria-label="Отправить">
+      <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.54 21.69a.5.5 0 0 0 .94-.03l6.5-19a.5.5 0 0 0-.64-.63l-19 6.5a.5.5 0 0 0-.02.93l7.93 3.18a2 2 0 0 1 1.11 1.11z"/><path d="m21.85 2.15-10.94 10.93"/></svg>
+    </button>
+  </form>
+</div>
+
+<div id="modal" class="modal" aria-hidden="true"></div>
+
+<script>
+
+
+const F = p => `<svg class="i" viewBox="0 0 24 24" fill="currentColor" fill-rule="evenodd" aria-hidden="true">${p}</svg>`;
+const S = p => `<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+
+const ICON = {
+  castle: F('<path d="M2 22V6h1.5v2h1V6H6v2h1V6h1v16zM16 22V6h1v2h1V6h1.5v2h1V6H22v16zM8 22V11h1.5v1.5H11V11h2v1.5h1.5V11H16v11h-2.5v-3.5a1.5 1.5 0 0 0-3 0V22z"/><path d="M4.2 12.5h1.6v3H4.2zM18.2 12.5h1.6v3h-1.6z" fill="#000" opacity=".0"/>'),
+  palace: F('<path d="M12 2 2 8.2V10h20V8.2zm0 3a1.3 1.3 0 1 1 0 2.6A1.3 1.3 0 0 1 12 5zM4 11h2.5v8H4zm4.5 0H11v8H8.5zm4.5 0h2.5v8H13zm4.5 0H20v8h-2.5zM2.5 20h19v2h-19z"/>'),
+  ruins: F('<path d="M2 22V12.5l2-1.2 1.2 2 1.8-3.6 2 1V6.2l2-2.2 1.2 3 2-1.2v5l2 1 1.2-3 2 2 1-1 1.6 2V22zm3.5-3v-2.5a1.25 1.25 0 0 1 2.5 0V19zm5.2 0v-4a1.3 1.3 0 0 1 2.6 0v4zm5.3 0v-2.5a1.25 1.25 0 0 1 2.5 0V19z"/>'),
+  restoring: F('<path d="M3 22V9h1.5v2H6V9h2v2h1.5V9H11v13H8.5v-3a1.5 1.5 0 0 0-3 0v3zM15 22V5.5h1.6V22zM12.5 3.5h10.5v1.6H12.5zM20.6 5.1h.9v4.6h-.9zM19.9 9.7h2.3v2h-2.3zM13.5 21h5v1h-5zM16.6 5.1l3-1.6h1l-4 2.6z"/>'),
+  battle: S('<polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" y1="19" x2="19" y2="13"/><line x1="16" y1="16" x2="20" y2="20"/><line x1="19" y1="21" x2="21" y2="19"/><polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"/><line x1="5" y1="14" x2="9" y2="18"/><line x1="7" y1="17" x2="4" y2="20"/><line x1="3" y1="19" x2="5" y2="21"/>'),
+  grid: S('<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>'),
+  shield: S('<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>'),
+  map: S('<path d="M14.1 5.55a2 2 0 0 0 1.8 0l3.65-1.83A1 1 0 0 1 21 4.62v12.76a1 1 0 0 1-.55.9l-4.55 2.27a2 2 0 0 1-1.8 0l-4.2-2.1a2 2 0 0 0-1.8 0l-3.65 1.83A1 1 0 0 1 3 19.38V6.62a1 1 0 0 1 .55-.9L8.1 3.45a2 2 0 0 1 1.8 0z"/><path d="M15 5.76v15M9 3.24v15"/>'),
+  pin: S('<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>'),
+  calendar: S('<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>'),
+  palette: S('<circle cx="13.5" cy="6.5" r=".6"/><circle cx="17.5" cy="10.5" r=".6"/><circle cx="8.5" cy="7.5" r=".6"/><circle cx="6.5" cy="12.5" r=".6"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.93 0 1.65-.75 1.65-1.69 0-.44-.18-.83-.44-1.12-.29-.29-.44-.65-.44-1.13a1.64 1.64 0 0 1 1.67-1.67h2c3.05 0 5.55-2.5 5.55-5.55C21.97 6.01 17.46 2 12 2z"/>'),
+  scroll: S('<path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/>'),
+  clock: S('<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>'),
+  ghost: S('<path d="M9 10h.01M15 10h.01M12 2a8 8 0 0 0-8 8v12l3-3 2.5 2.5L12 19l2.5 2.5L17 19l3 3V10a8 8 0 0 0-8-8z"/>'),
+  info: S('<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>'),
+  book: S('<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>'),
+  arrows: S('<path d="M8 3 4 7l4 4M4 7h16M16 21l4-4-4-4M20 17H4"/>'),
+  rotate: S('<path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/>'),
+  left: S('<path d="m15 18-6-6 6-6"/>'),
+  right: S('<path d="m9 18 6-6-6-6"/>'),
+  up: S('<path d="m5 12 7-7 7 7M12 19V5"/>'),
+  down: S('<path d="m6 9 6 6 6-6"/>'),
+  close: S('<path d="M18 6 6 18M6 6l12 12"/>'),
+  camera: S('<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3"/>')
+};
+
+const KIND_COLOR = {
+  castle: '#9b2c2c', palace: '#2b5f93', ruins: '#6d635a', restoring: '#c9821a', battle: '#2a2a2a'
+};
+const KIND_NAME = {
+  castle: 'Замок', palace: 'Дворец', ruins: 'Руины', restoring: 'Восстанавливается', battle: 'Место битвы'
+};
+
+const wm = (file, w = 960) => file
+  ? 'https://commons.wikimedia.org/wiki/Special:FilePath/' + encodeURIComponent(file.replace(/ /g, '_')) + '?width=' + w
+  : '';
+const filePage = url => {
+  if (!url || url.indexOf('Special:FilePath/') === -1) return '';
+  return 'https://commons.wikimedia.org/wiki/File:' + url.split('Special:FilePath/')[1].split('?')[0];
+};
+
+
+
+const castles = [
+  {
+    name: 'Мирский замок',
+    type: 'castle',
+    place: 'г.п. Мир, Кореличский р-н, Гродненская обл.',
+    coords: [53.451, 26.473],
+    year: 'начало XVI в.',
+    style: 'готика + ренессанс',
+    status: 'сохранился (ЮНЕСКО)',
+    statusKey: 'preserved',
+    description: 'Жемчужина белорусской архитектуры и один из символов страны. Пятибашенный замок из красного кирпича с белыми вставками соединяет суровую готику и изящный ренессанс.',
+    history: 'Строительство начал около 1520 года магнат Юрий Ильинич, получивший титул графа Священной Римской империи. В 1568 году замок перешёл к Николаю Радзивиллу Сиротке, который превратил крепость в ренессансную резиденцию с дворцом и итальянским садом. Замок сильно пострадал в войнах 1655 и 1706 годов и в 1812-м, а в 1891 году его выкупил князь Николай Святополк-Мирский. В 2000 году ансамбль внесён в Список всемирного наследия ЮНЕСКО, с 2010 года здесь работает музей.',
+    imageNow: wm('Belarus_Mir_Mir_Castle_Complex_8101_2085.jpg'),
+    imageOld: wm('Napoleon Orda - Mir.jpg'),
+    oldCaption: 'рисунок Н. Орды, 1870-е',
+    legends: [
+      'Из подвалов замка будто бы ведёт подземный ход длиной около 30 километров — прямо в Несвиж. По нему Радзивиллы тайно вывозили сокровища, в том числе знаменитых «двенадцать золотых апостолов», которых ищут до сих пор.',
+      'Пруд у замка выкопали при Святополк-Мирских. По преданию, в нём утонула девочка Сонечка, и с тех пор в тумане над водой иногда виден её тонкий силуэт.'
+    ]
+  },
+  {
+    name: 'Несвижский замок',
+    type: 'castle',
+    place: 'г. Несвиж, Минская обл.',
+    coords: [53.222, 26.680],
+    year: 'конец XVI в. (с 1583)',
+    style: 'барокко',
+    status: 'сохранился (ЮНЕСКО)',
+    statusKey: 'preserved',
+    description: 'Родовая резиденция князей Радзивиллов на протяжении почти четырёх веков. Дворцово-замковый комплекс окружён валами, рвами с водой и живописными парками.',
+    history: 'В 1583 году Николай Радзивилл Сиротка заложил каменный замок на месте деревянного, к работам был привлечён итальянский зодчий Джованни Мария Бернардони. Здесь хранились богатейший архив, библиотека и коллекция портретов рода. В 1706 году шведы разрушили укрепления, но в XVIII веке замок отстроили в стиле барокко, а княгиня Урсула Франтишка Радзивилл основала при нём театр. В 2005 году ансамбль вошёл в Список ЮНЕСКО, а после пожара 2002 года и масштабной реставрации музей открыт с 2012 года.',
+    imageNow: wm('Замак-палац_у_Нясьвіжы_знутры.jpg'),
+    imageOld: wm('Nieśwież. Zamek Radziwiłłów. Rysunek Napoleona Ordy.jpg'),
+    oldCaption: 'рисунок Н. Орды, 1870-е',
+    legends: [
+      'Чёрная дама — призрак Барбары Радзивилл, возлюбленной короля Сигизмунда Августа. Она умерла в 1551 году вскоре после коронации, и молва обвиняла в отравлении королеву-мать Бону Сфорца. С тех пор тень в чёрном бродит по залам Несвижа, предвещая беды роду Радзивиллов.',
+      'В тайниках замка будто бы спрятаны двенадцать апостолов из чистого золота. Их замуровали при нашествии врагов, и те, кто знал о тайнике, унесли секрет в могилу.'
+    ]
+  },
+  {
+    name: 'Лидский замок',
+    type: 'castle',
+    place: 'г. Лида, Гродненская обл.',
+    coords: [53.887, 25.293],
+    year: '1323–1328',
+    style: 'готика (кастель)',
+    status: 'сохранился',
+    statusKey: 'preserved',
+    description: 'Один из первых каменных замков Великого княжества Литовского. Мощный четырёхугольник стен с угловыми башнями стоит на острове между двумя реками.',
+    history: 'Замок построен по приказу великого князя Гедимина в 1323–1328 годах на искусственном острове между реками Лидея и Каменка. Стены высотой около 12 метров из валуна и кирпича выдержали многочисленные осады крестоносцев и татар. В XVII–XVIII веках крепость пострадала в войнах с Московским государством и Швецией, а в 1710 году шведы взорвали её башни. Реставрация ведётся с 1980-х годов, восстановлены стены и башни, и сегодня здесь проходят рыцарские фестивали.',
+    imageNow: wm('Ліда._Лідскі_замак.jpg'),
+    imageOld: wm('Napoleon Orda, Lida nad rzeką Lidzieją.jpg'),
+    oldCaption: 'рисунок Н. Орды, 1870-е',
+    legends: [
+      'По преданию, в подземельях замка до сих пор томится дух рыцаря-крестоносца, взятого в плен при осаде. Лунными ночами на стенах слышен звон его доспехов и тяжёлые шаги.'
+    ]
+  },
+  {
+    name: 'Кревский замок',
+    type: 'castle',
+    place: 'аг. Крево, Сморгонский р-н, Гродненская обл.',
+    coords: [54.310, 26.287],
+    year: 'XIV в.',
+    style: 'готика',
+    status: 'руины',
+    statusKey: 'ruins',
+    description: 'Одна из старейших каменных крепостей Беларуси, где решались судьбы государств. Здесь в 1385 году была заключена знаменитая Кревская уния.',
+    history: 'Замок возведён в первой половине XIV века, предположительно при Гедимине, и стал резиденцией князя Ольгерда. В 1382 году в подземелье Княжеской башни по приказу Ягайло был задушен князь Кейстут. 14 августа 1385 года здесь подписан акт Кревской унии — союза ВКЛ и Королевства Польского. В Первую мировую войну через замок проходила линия фронта, и артиллерия превратила его в руины.',
+    imageNow: wm('Крэва._Закансервананая_вежа_замка.jpg'),
+    imageOld: wm('Orda-Krewo.jpg'),
+    oldCaption: 'рисунок Н. Орды, 1870-е',
+    legends: [
+      'Призрак князя Кейстута до сих пор бродит по руинам. В ненастные ночи у остатков Княжеской башни слышат звон цепей и тихий голос, требующий справедливости от предавшего его племянника.'
+    ]
+  },
+  {
+    name: 'Гольшанский замок',
+    type: 'castle',
+    place: 'аг. Гольшаны, Ошмянский р-н, Гродненская обл.',
+    coords: [54.247, 26.017],
+    year: 'XIV–XVII вв.',
+    style: 'готика + ренессанс',
+    status: 'руины',
+    statusKey: 'ruins',
+    description: 'Родовое гнездо князей Гольшанских, окутанное мистикой. Эти руины вдохновили Владимира Короткевича на роман «Чёрный замок Ольшанский».',
+    history: 'В XIV веке здесь стоял деревянный замок князей Гольшанских — одного из знатнейших родов ВКЛ; из него происходила Софья Гольшанская, жена короля Ягайло. В начале XVII века подканцлер Павел Стефан Сапега возвёл на этом месте каменный замок-дворец в духе ренессанса с башнями и рвами. Замок пострадал в войнах XVII–XVIII веков и постепенно пришёл в запустение. Сегодня сохранились руины стен и башни, а рядом стоит францисканский монастырь.',
+    imageNow: wm('Halšany_Castle_2022_(03).jpg'),
+    imageOld: wm('Halšanski zamak. Гальшанскі замак (1800).jpg'),
+    oldCaption: 'старинный рисунок',
+    legends: [
+      'Белая дама Гольшан: при строительстве монастыря стены по ночам рушились, и мастера решили замуровать ту из жён, что первой принесёт обед. Ею оказалась молодая жена младшего мастера. Говорят, в 1990-х при реставрации в стене нашли женские останки, а Белая дама до сих пор бродит по руинам.'
+    ]
+  },
+  {
+    name: 'Новогрудский замок',
+    type: 'castle',
+    place: 'г. Новогрудок, Гродненская обл.',
+    coords: [53.598, 25.827],
+    year: 'середина XIII в.',
+    style: 'оборонительный',
+    status: 'руины',
+    statusKey: 'ruins',
+    description: 'Замок в одной из первых столиц Великого княжества Литовского. От могучей крепости сохранились две башни — Щитовка и Костёльная.',
+    history: 'Укрепления на Замковой горе существовали уже в XIII веке, а Новогрудок традиционно связывают с князем Миндовгом, коронованным в 1253 году. В XIV–XV веках здесь выросла каменная крепость с семью башнями, выдержавшая нападения крестоносцев и татар. Замок был разрушен в войнах XVII века и окончательно подорван в годы Северной войны. Сегодня руины над городом — символ Новогрудка, воспетого Адамом Мицкевичем.',
+    imageNow: wm('Novogrudok_ruin.jpg'),
+    imageOld: wm('Nowogrodek.jpg'),
+    oldCaption: 'гравюра XIX в.',
+    legends: [
+      'Рядом с замком возвышается гора Миндовга. По легенде, её насыпали воины — каждый принёс шапку земли в память о князе, а в недрах холма покоится сам Миндовг в золотых доспехах.'
+    ]
+  },
+  {
+    name: 'Любчанский замок',
+    type: 'castle',
+    place: 'г.п. Любча, Новогрудский р-н, Гродненская обл.',
+    coords: [53.748, 26.071],
+    year: 'конец XVI в.',
+    style: 'бастионный',
+    status: 'восстанавливается',
+    statusKey: 'restoring',
+    description: 'Замок на высоком берегу Немана, когда-то один из центров книгопечатания. Благодаря энтузиастам его башни снова поднимаются над рекой.',
+    history: 'Замок построен в конце XVI века по заказу магната Яна Кишки, при котором в Любче действовала известная кальвинистская типография. Позже владение перешло к Радзивиллам, а в XIX веке — к князьям Витгенштейнам, возведшим здесь неоготический дворец. Крепость сильно пострадала в войнах XVII века и в Первую мировую. С 2000-х годов силами волонтёров и благотворительного фонда восстанавливаются башни, где уже работает музей.',
+    imageNow: wm('Liubča_Castle_20180501_173501.jpg'),
+    imageOld: wm('Lubča, Nioman. Любча, Нёман (J. Bułhak, 1910).jpg'),
+    oldCaption: 'фото Я. Булгака, 1910',
+    legends: [
+      'Местные жители верят, что от замка к Неману вёл подземный ход, по которому при осаде носили воду. Где-то в нём будто бы спрятаны сундуки с книгами старой любчанской типографии.'
+    ]
+  },
+  {
+    name: 'Смолянский замок (Белый Ковель)',
+    type: 'castle',
+    place: 'аг. Смоляны, Оршанский р-н, Витебская обл.',
+    coords: [54.582, 30.061],
+    year: 'XVI в.',
+    style: 'оборонительный',
+    status: 'руины',
+    statusKey: 'ruins',
+    description: 'Руины некогда величественной крепости, прозванной за светлые стены «Белым Ковелем». Сохранились фрагменты стен и башни на высоком валу.',
+    history: 'Крепость возникла в XVI веке на важной дороге из Орши к Смоленску, а позднее была перестроена в камне. Мощные стены и башни не раз оказывались в центре сражений между ВКЛ и Московским государством. Замок сильно пострадал в войнах XVII–XVIII веков и в 1812 году. Сейчас от него остались живописные руины стен, окружённые валами и рвами.',
+    imageNow: wm('Belarus-Smalyany-Bely_Kovel_Castle-1.jpg'),
+    imageOld: wm('Smaljany, Bieły Koviel. Смальяны, Белы Ковель (1917).jpg'),
+    oldCaption: 'фото 1917 г.',
+    legends: [
+      'По ночам среди руин появляется Белая дама Смолян — дочь владельца, которую отец, по преданию, замуровал в стене за любовь к простому слуге.'
+    ]
+  },
+  {
+    name: 'Старый замок в Гродно',
+    type: 'castle',
+    place: 'г. Гродно',
+    coords: [53.677, 23.822],
+    year: 'XIV в.',
+    style: 'готика',
+    status: 'сохранился (музей)',
+    statusKey: 'preserved',
+    description: 'Древнейший замок Гродно на высоком берегу Немана. Резиденция Витовта и Стефана Батория, сегодня — историко-археологический музей.',
+    history: 'Каменный замок с башнями построил великий князь Витовт в конце XIV века на месте древнего детинца. В 1580-х годах король Стефан Баторий перестроил его в ренессансный дворец по проекту итальянского архитектора Скотто из Пармы; здесь же король умер в 1586 году. В замке проходили сеймы Речи Посполитой. Сегодня в нём размещается Гродненский государственный историко-археологический музей, недавно завершена масштабная реконструкция.',
+    imageNow: wm('Hrodna_Old_Castle_2023-06-25_5510.jpg'),
+    imageOld: wm('Napoleon Orda Grodno nad rzeką Niemnem.jpg'),
+    oldCaption: 'рисунок Н. Орды, 1870-е',
+    legends: [
+      'Говорят, что дух короля Стефана Батория не покинул любимый замок: в полночь в пустых залах слышатся шаги и звон шпор, а в окнах мелькает свет одинокой свечи.'
+    ]
+  },
+  {
+    name: 'Замок в Свислочи',
+    type: 'castle',
+    place: 'г.п. Свислочь, Гродненская обл.',
+    coords: [53.033, 24.100],
+    year: 'XVI в.',
+    style: 'бастионный',
+    status: 'руины',
+    statusKey: 'ruins',
+    description: 'Остатки укреплений на древнем торговом пути. Земляные валы и бастионы напоминают о временах, когда эти земли были пограничьем.',
+    history: 'Укрепление в Свислочи возникло в XVI веке и имело земляные бастионы, типичные для оборонительного зодчества эпохи. Позднее местечко принадлежало Тышкевичам, при которых здесь разбили парк и открыли знаменитую Свислочскую гимназию. Укрепления пришли в упадок в войнах XVII–XVIII веков. Сегодня сохранились лишь следы валов и фрагменты старой застройки.',
+    imageNow: wm('Свіслач._Краявіды._2022_(14.1).jpg'),
+    imageOld: '',
+    oldCaption: 'художественная реконструкция',
+    legends: [
+      'Местные рассказывают о кладе, зарытом защитниками в бастионе перед штурмом. В купальскую ночь над валом будто бы загорается синий огонёк, указывающий место сокровища.'
+    ]
+  },
+  {
+    name: 'Геранёнский замок',
+    type: 'castle',
+    place: 'аг. Геранёны, Ивьевский р-н, Гродненская обл.',
+    coords: [54.083, 25.750],
+    year: 'XV–XVI вв.',
+    style: 'готика',
+    status: 'руины',
+    statusKey: 'ruins',
+    description: 'Родовое гнездо могущественных магнатов Гаштольдов. Здесь жила юная Барбара Радзивилл до встречи с королём.',
+    history: 'Замок построен на рубеже XV–XVI веков магнатом Альбертом Гаштольдом, канцлером ВКЛ. Это был один из ранних каменных замков регулярной планировки с кирпичными стенами и башнями. После смерти Станислава Гаштольда здесь жила его вдова Барбара Радзивилл, будущая королева. Замок разрушен в XVII веке, сегодня видны лишь остатки стен и замковый холм.',
+    imageNow: wm('36_Геранены.JPG'),
+    imageOld: wm('Gieranionski zamak. Геранёнскі замак (N. Orda, 16.05.1875-77).jpg'),
+    oldCaption: 'рисунок Н. Орды, 1875–77',
+    legends: [
+      'По преданию, именно в Геранёнах молодой Сигизмунд Август впервые тайно встретился с Барбарой. Их любовь началась среди этих стен, а закончилась трагедией, породившей легенду о Чёрной даме Несвижа.'
+    ]
+  },
+  {
+    name: 'Ружанский дворец',
+    type: 'palace',
+    place: 'г.п. Ружаны, Пружанский р-н, Брестская обл.',
+    coords: [52.867, 24.900],
+    year: 'XVII–XVIII вв.',
+    style: 'барокко, классицизм',
+    status: 'руины (восстанавливается)',
+    statusKey: 'ruins',
+    description: 'Величественная резиденция Сапегов, которую называли «белорусским Версалем». Сегодня её восстанавливают: парадная брама уже вернула былой облик.',
+    history: 'В начале XVII века канцлер Лев Сапега возвёл здесь каменный замок. В 1784–1788 годах его потомок Александр Сапега перестроил его в роскошный дворец по проекту архитектора Яна Самуэля Беккера; сюда приезжал король Станислав Август Понятовский. После восстания 1831 года имение конфисковали, в здании разместили текстильную фабрику, а в 1914 году дворец сгорел. С 2008 года идёт реставрация: восстановлены въездная брама и флигели.',
+    imageNow: wm('Ruzhany302.JPG'),
+    imageOld: wm('Rozana (G. Grodzienska), posiadlosc rodziny ks. Sapiehow ca 1920 (1068731).jpg'),
+    oldCaption: 'фото ок. 1920 г.',
+    legends: [
+      'Говорят, Лев Сапега спрятал в подземельях Ружан казну и часть архива, а вход в тайник охраняет заклятие: открыть его сможет лишь тот, кто придёт с чистыми помыслами.'
+    ]
+  },
+  {
+    name: 'Коссовский дворец',
+    type: 'palace',
+    place: 'г. Коссово, Ивацевичский р-н, Брестская обл.',
+    coords: [52.750, 25.150],
+    year: 'XIX в. (1838)',
+    style: 'неоготика',
+    status: 'сохранился',
+    statusKey: 'preserved',
+    description: 'Сказочный неоготический замок-дворец Пусловских с двенадцатью башнями. Стоит неподалёку от усадьбы, где родился Тадеуш Костюшко.',
+    history: 'Дворец построен в 1838 году по заказу Войцеха Пусловского, предположительно по проекту архитектора Франциска Ланци. Интерьеры поражали роскошью: по преданию, в одном из залов под стеклянным полом плавали рыбы, а вход охраняли каменные львы. В 1944 году дворец сгорел и долго стоял в руинах. С 2008 года ведётся масштабная реставрация, и сегодня дворец снова принимает посетителей.',
+    imageNow: wm('Дворец_Пусловских_2_2020.jpg'),
+    imageOld: wm('Kosava Castle.Restoration.4.JPG'),
+    oldCaption: 'до реставрации, 2012',
+    legends: [
+      'Говорят, дворец строили как календарь: 12 башен — по числу месяцев, 52 комнаты — по числу недель, а окон — 365, как дней в году.',
+      'От дворца будто бы вёл подземный ход к усадьбе Костюшко в Меречёвщине, и по нему можно было проехать в карете.'
+    ]
+  },
+  {
+    name: 'Дворец в Жиличах',
+    type: 'palace',
+    place: 'аг. Жиличи, Кировский р-н, Могилёвская обл.',
+    coords: [53.150, 29.800],
+    year: '1820-е',
+    style: 'классицизм',
+    status: 'сохранился',
+    statusKey: 'preserved',
+    description: 'Изысканный дворцово-парковый ансамбль рода Булгаков. Белоснежный дворец с колоннадой окружён пейзажным парком с прудами.',
+    history: 'Дворец возведён в 1820-х годах для рода Булгаков в стиле зрелого классицизма. Ансамбль включал главный корпус, флигели, оранжерею, конюшни и огромный пейзажный парк. В XIX веке здесь собирали коллекции картин и книг и устраивали пышные балы. В советское время во дворце размещался сельскохозяйственный техникум, а сейчас ведётся реставрация и работает музейная экспозиция.',
+    imageNow: wm('Жиличи._Дворец_Булгаков,_вид_с_воздуха_DJI_0525-HDR_(51396070628).jpg'),
+    imageOld: '',
+    oldCaption: 'художественная реконструкция',
+    legends: [
+      'Рассказывают о подземном ходе, соединявшем дворец с костёлом, и о призраке пани Булгак, которая лунными ночами гуляет по аллеям парка в белом платье.'
+    ]
+  },
+  {
+    name: 'Дворец Воловичей в Святске',
+    type: 'palace',
+    place: 'д. Святск, Гродненский р-н, Гродненская обл.',
+    coords: [53.550, 24.100],
+    year: '1779',
+    style: 'барокко + классицизм',
+    status: 'сохранился',
+    statusKey: 'preserved',
+    description: 'Дворец Воловичей — редкий пример перехода от барокко к классицизму. Изящный главный корпус с флигелями стоит в тихом старинном парке.',
+    history: 'Дворец построен в 1779 году для рода Воловичей, проект приписывают придворному архитектору Джузеппе Сакко. Композиция включает главный корпус и боковые флигели, образующие парадный двор. В XIX веке имение сменило нескольких владельцев, а в советское время здесь разместилось социальное учреждение. Здание сохранилось и охраняется как памятник архитектуры.',
+    imageNow: wm('Śviacak._Сьвяцак_(2006).jpg'),
+    imageOld: wm('Swiack 1933.jpg'),
+    oldCaption: 'фото 1933 г.',
+    legends: [
+      'По преданию, последний из Воловичей проклял дворец, узнав о предательстве жены, — и с тех пор ни один род не владел им долго.'
+    ]
+  }
+];
+
+const battles = [
+  { name: 'Битва на Немиге', coords: [53.905, 27.550], year: '1067', text: 'Одно из первых упоминаний Минска в летописях: сражение полоцкого князя Всеслава Чародея с сыновьями Ярослава Мудрого.' },
+  { name: 'Битва под Оршей', coords: [54.510, 30.420], year: '8 сентября 1514', text: 'Войска ВКЛ и Польши под командованием гетмана Константина Острожского разгромили армию Московского государства.' },
+  { name: 'Битва при Лесной', coords: [53.400, 31.000], year: '1708', text: 'Армия Петра I разбила шведский корпус Левенгаупта; Пётр назвал эту победу «матерью Полтавской баталии».' },
+  { name: 'Переправа через Березину', coords: [54.330, 28.350], year: '1812', text: 'У деревни Студёнка остатки Великой армии Наполеона с огромными потерями переправились через Березину.' }
+];
+
+const timelines = {
+  mir: { title: 'Мирский замок', items: [
+    { year: '≈1520', title: 'Начало строительства', text: 'Юрий Ильинич возводит каменный замок с пятью башнями в готическом стиле.' },
+    { year: '1568', title: 'Эпоха Радзивиллов', text: 'Замок переходит к Николаю Радзивиллу Сиротке, появляется ренессансный дворец.' },
+    { year: '1655', title: 'Война и разрушения', text: 'В ходе войны с Московским государством замок сильно пострадал.' },
+    { year: '1706', title: 'Северная война', text: 'Шведские войска разоряют замок, он надолго приходит в упадок.' },
+    { year: '1812', title: 'Бои под Миром', text: 'Рядом с замком проходят сражения армий Наполеона и России.' },
+    { year: '1891', title: 'Святополк-Мирские', text: 'Князь Николай Святополк-Мирский покупает замок и начинает восстановление.' },
+    { year: '1983', title: 'Большая реставрация', text: 'Начинаются систематические научные реставрационные работы.' },
+    { year: '2000', title: 'Наследие ЮНЕСКО', text: 'Замковый комплекс «Мир» внесён в Список всемирного наследия.' },
+    { year: '2010', title: 'Музей', text: 'Открыт музейный комплекс, замок становится туристическим символом страны.' }
+  ]},
+  nesvizh: { title: 'Несвижский замок', items: [
+    { year: 'XVI в.', title: 'Несвиж у Радзивиллов', text: 'Город становится родовым владением одного из самых богатых родов ВКЛ.' },
+    { year: '1583', title: 'Закладка замка', text: 'Николай Радзивилл Сиротка начинает строительство каменной резиденции.' },
+    { year: '1586', title: 'Ординация', text: 'Несвиж становится неделимым майоратом Радзивиллов.' },
+    { year: '1706', title: 'Разрушение шведами', text: 'Во время Северной войны укрепления замка взорваны.' },
+    { year: '1740-е', title: 'Театр Урсулы', text: 'Княгиня Урсула Франтишка Радзивилл создаёт в Несвиже придворный театр.' },
+    { year: '1939', title: 'Конец эпохи', text: 'Последние Радзивиллы покидают замок, коллекции вывозят.' },
+    { year: '2002', title: 'Пожар', text: 'Во время реставрации пожар повреждает часть замка.' },
+    { year: '2005', title: 'ЮНЕСКО', text: 'Архитектурно-культурный комплекс резиденции Радзивиллов признан всемирным наследием.' },
+    { year: '2012', title: 'Музей-заповедник', text: 'После реставрации замок открывается для посетителей.' }
+  ]},
+  lida: { title: 'Лидский замок', items: [
+    { year: '1323', title: 'Указ Гедимина', text: 'Начинается строительство каменного кастеля на острове между реками.' },
+    { year: '1392', title: 'Осады крестоносцев', text: 'Замок становится ареной борьбы с Тевтонским орденом.' },
+    { year: '1506', title: 'Татарский набег', text: 'Крепость выдерживает осаду крымских татар.' },
+    { year: '1659', title: 'Война с Москвой', text: 'Замок захвачен и серьёзно повреждён.' },
+    { year: '1710', title: 'Взрыв башен', text: 'Шведы подрывают башни, замок превращается в руины.' },
+    { year: '1980-е', title: 'Реставрация', text: 'Начинается консервация и восстановление стен.' },
+    { year: '2010-е', title: 'Возрождение', text: 'Восстановлены башни, замок стал центром рыцарских фестивалей.' }
+  ]}
+};
+
+const LEGEND_ART = {
+  blackLady: `<svg viewBox="0 0 100 100" aria-hidden="true">
+    <defs><radialGradient id="la1"><stop offset="0" stop-color="#d4af37" stop-opacity=".45"/><stop offset="1" stop-color="#d4af37" stop-opacity="0"/></radialGradient></defs>
+    <circle cx="50" cy="50" r="48" fill="url(#la1)"/>
+    <path d="M50 12c-7 0-11 5-11 11 0 4 2 7 4 9-8 3-12 9-13 17l-8 39h56l-8-39c-1-8-5-14-13-17 2-2 4-5 4-9 0-6-4-11-11-11z" fill="#0b0b0b" stroke="#d4af37" stroke-width="1.6"/>
+    <path d="M39 22c2-10 20-10 22 0l6 26" fill="none" stroke="#d4af37" stroke-width="1" opacity=".55"/>
+    <path d="M36 60q14 8 28 0M33 74q17 9 34 0" fill="none" stroke="#d4af37" stroke-width=".8" opacity=".4"/>
+    <circle cx="50" cy="40" r="1.6" fill="#d4af37"/>
+  </svg>`,
+  whiteLady: `<svg viewBox="0 0 100 100" aria-hidden="true">
+    <defs>
+      <radialGradient id="la2"><stop offset="0" stop-color="#ffffff" stop-opacity=".35"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
+      <linearGradient id="la3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset=".7" stop-color="#e8eefc" stop-opacity=".7"/><stop offset="1" stop-color="#e8eefc" stop-opacity="0"/></linearGradient>
+    </defs>
+    <circle cx="50" cy="48" r="46" fill="url(#la2)"/>
+    <path d="M50 12c-7 0-11 5-11 11 0 4 2 7 4 9-8 3-12 9-13 17l-10 42c6-3 10 2 15-1 5 3 10-2 15 1 5-3 10 2 15-1 5 3 9-2 15 1L70 49c-1-8-5-14-13-17 2-2 4-5 4-9 0-6-4-11-11-11z" fill="url(#la3)"/>
+    <path d="M40 20c3-9 17-9 20 0l7 30" fill="none" stroke="#fff" stroke-width="1" opacity=".6"/>
+    <circle cx="46" cy="24" r="1.3" fill="#7a86a8"/><circle cx="54" cy="24" r="1.3" fill="#7a86a8"/>
+  </svg>`,
+  candle: `<svg viewBox="0 0 100 100" aria-hidden="true">
+    <defs><radialGradient id="la4"><stop offset="0" stop-color="#ffcc55" stop-opacity=".7"/><stop offset="1" stop-color="#ffcc55" stop-opacity="0"/></radialGradient></defs>
+    <path d="M18 92V46a32 32 0 0 1 64 0v46z" fill="#15120e" stroke="#d4af37" stroke-width="1.5"/>
+    <path d="M26 92V48a24 24 0 0 1 48 0v44" fill="none" stroke="#d4af37" stroke-width=".8" opacity=".35"/>
+    <path d="M18 60h8M74 60h8M18 76h8M74 76h8M30 30l5 5M70 30l-5 5" stroke="#d4af37" stroke-width=".8" opacity=".35"/>
+    <circle cx="50" cy="40" r="26" fill="url(#la4)"/>
+    <rect x="44" y="50" width="12" height="30" rx="2" fill="#efe3c2"/>
+    <path d="M44 54q3 3 5 0" stroke="#d8c79a" stroke-width="1.4" fill="none"/>
+    <rect x="38" y="80" width="24" height="5" rx="2" fill="#d4af37"/>
+    <path d="M50 34c4 5 5 9 0 14-5-5-4-9 0-14z" fill="#ffcf4d"/>
+    <path d="M50 40c2 3 2 5 0 7-2-2-2-4 0-7z" fill="#fff4c9"/>
+  </svg>`,
+  ghost: `<svg viewBox="0 0 100 100" aria-hidden="true">
+    <defs><radialGradient id="la5"><stop offset="0" stop-color="#9fb4ff" stop-opacity=".35"/><stop offset="1" stop-color="#9fb4ff" stop-opacity="0"/></radialGradient></defs>
+    <circle cx="50" cy="46" r="46" fill="url(#la5)"/>
+    <path d="M50 12c-16 0-26 12-26 28v46l8-7 7 7 7-7 4 4 4-4 7 7 7-7 8 7V40c0-16-10-28-26-28z" fill="#eef1fb" opacity=".92"/>
+    <ellipse cx="41" cy="38" rx="4" ry="5.5" fill="#1a1a2a"/><ellipse cx="59" cy="38" rx="4" ry="5.5" fill="#1a1a2a"/>
+    <path d="M44 52q6 5 12 0" stroke="#1a1a2a" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M36 23l4 4 5-5 5 5 5-5 5 5 4-4-2 7H38z" fill="#d4af37"/>
+    <g fill="none" stroke="#a9a9b8" stroke-width="2.2"><ellipse cx="20" cy="66" rx="4" ry="2.6"/><ellipse cx="14" cy="72" rx="2.6" ry="4"/><ellipse cx="80" cy="66" rx="4" ry="2.6"/><ellipse cx="86" cy="72" rx="2.6" ry="4"/></g>
+  </svg>`
+};
+
+const featuredLegends = [
+  { idx: 1, title: 'Чёрная дама Несвижа', art: 'blackLady',
+    short: 'Призрак Барбары Радзивилл, отравленной королевы, бродит по залам замка Радзивиллов.',
+    full: [
+      'Барбара Радзивилл слыла первой красавицей Великого княжества. Молодой король Сигизмунд Август полюбил её и тайно обвенчался с ней вопреки воле знати и своей матери, королевы Боны Сфорца.',
+      'В 1551 году, всего через несколько месяцев после коронации, Барбара внезапно умерла. Молва шептала, что её отравила свекровь. Безутешный король, по легенде, велел чародею Твардовскому вызвать дух любимой — и Барбара явилась в зеркале, но навсегда осталась между мирами.',
+      'С тех пор Чёрная дама бродит по коридорам Несвижского замка. Смотрители рассказывают о шорохе платья, холодных сквозняках и тени в окнах — а её появление будто бы предвещает беду роду Радзивиллов.'
+    ]},
+  { idx: 4, title: 'Белая дама Гольшан', art: 'whiteLady',
+    short: 'Молодую женщину замуровали в стене, чтобы стены монастыря перестали рушиться.',
+    full: [
+      'Когда в Гольшанах строили монастырь, стены, возведённые днём, каждую ночь рушились. Мастера решили, что стройке нужна жертва, и договорились замуровать ту из жён, что первой принесёт обед.',
+      'Старшие тайком предупредили своих жён, а младший мастер промолчал. Наутро первой пришла его юная жена — и её заживо замуровали в стену. После этого стены перестали падать.',
+      'Говорят, при реставрации в 1990-х годах в стене действительно нашли женские останки. А Белая дама до сих пор появляется в монастыре и среди руин замка — тихая и печальная.'
+    ]},
+  { idx: 0, title: 'Подземный ход Мира', art: 'candle',
+    short: 'Тайный тоннель из подвалов Мирского замка будто бы ведёт прямо в Несвиж.',
+    full: [
+      'Мирский и Несвижский замки принадлежали Радзивиллам и стоят примерно в 30 километрах друг от друга. Народная молва давно соединила их подземным ходом.',
+      'По нему, говорят, князья в минуту опасности тайно перевозили казну, архивы и знаменитых двенадцать золотых апостолов в человеческий рост. Где-то на полпути сокровища будто бы и спрятаны.',
+      'Кладоискатели веками ищут вход в тоннель в подвалах замка, но пока безуспешно. А местные жители уверяют, что в тихие ночи из-под земли слышен стук копыт.'
+    ]},
+  { idx: 3, title: 'Призрак Крево', art: 'ghost',
+    short: 'Дух князя Кейстута, задушенного в башне замка, требует справедливости.',
+    full: [
+      'В 1382 году великий князь Кейстут вместе с сыном Витовтом приехал на переговоры к племяннику Ягайло — и был схвачен. Кейстута бросили в подземелье Кревского замка.',
+      'Через пять дней узника нашли мёртвым. Официально объявили, что князь сам лишил себя жизни, но все знали: его задушили по приказу Ягайло. Витовту удалось бежать, переодевшись в платье служанки.',
+      'С тех пор, говорят, в ненастные ночи у руин Княжеской башни слышен звон цепей и тяжёлые шаги. Это дух Кейстута, который так и не нашёл покоя.'
+    ]}
+];
+
+
+
+
+const artCache = {};
+
+function castleSVG(fill, win, old) {
+  let g = `<g fill="${fill}">
+    <rect x="150" y="200" width="300" height="135"/>
+    <rect x="112" y="150" width="76" height="185"/>
+    <rect x="412" y="150" width="76" height="185"/>
+    <rect x="260" y="112" width="80" height="223"/>
+    <polygon points="104,152 150,88 196,152"/>
+    <polygon points="404,152 450,88 496,152"/>
+    <polygon points="252,114 300,40 348,114"/>`;
+  for (let x = 192; x < 256; x += 18) g += `<rect x="${x}" y="188" width="11" height="14"/>`;
+  for (let x = 346; x < 410; x += 18) g += `<rect x="${x}" y="188" width="11" height="14"/>`;
+  g += `<rect x="298" y="18" width="3" height="26"/><polygon points="301,18 324,25 301,32" fill="${old ? fill : '#d4af37'}"/></g>`;
+  const w = [[140,185],[140,240],[440,185],[440,240],[290,150],[290,205],[200,240],[380,240]];
+  g += w.map(([x, y]) => `<path d="M${x} ${y + 22} v-14 a10 10 0 0 1 20 0 v14z" fill="${win}" opacity="0.85"/>`).join('');
+  g += `<path d="M278 335 v-38 a22 22 0 0 1 44 0 v38z" fill="${old ? '#2c2114' : '#1a1208'}"/>`;
+  return g;
+}
+
+function palaceSVG(fill, win, old, neo) {
+  let g = `<g fill="${fill}">
+    <rect x="80" y="215" width="440" height="120"/>
+    <rect x="75" y="205" width="450" height="12"/>
+    <rect x="225" y="170" width="150" height="165"/>
+    <polygon points="215,172 300,118 385,172"/>`;
+  if (neo) {
+    g += `<rect x="58" y="150" width="42" height="185"/><polygon points="52,152 79,98 106,152"/>
+          <rect x="500" y="150" width="42" height="185"/><polygon points="494,152 521,98 548,152"/>
+          <rect x="284" y="82" width="32" height="50"/><polygon points="278,84 300,36 322,84"/>`;
+  } else {
+    g += `<path d="M268 136 a32 32 0 0 1 64 0z"/><rect x="297" y="86" width="6" height="20"/>`;
+  }
+  g += '</g>';
+  [232, 280].forEach(row => {
+    for (let x = 95; x < 510; x += 30) {
+      if (x > 212 && x < 380) continue;
+      g += `<rect x="${x}" y="${row}" width="14" height="26" rx="${neo ? 7 : 1}" fill="${win}" opacity="0.85"/>`;
+    }
+  });
+  for (let x = 238; x < 370; x += 22) g += `<rect x="${x}" y="180" width="8" height="155" fill="${old ? '#d8c79f' : '#1c1c22'}"/>`;
+  g += `<rect x="285" y="287" width="30" height="48" fill="${win}" opacity="0.6"/>`;
+  return g;
+}
+
+function ruinSVG(fill, hole) {
+  let g = `<polygon fill="${fill}" points="95,335 95,215 112,205 122,238 150,226 160,255 205,248 214,190 232,178 246,160 262,172 270,215 318,210 330,246 372,238 390,170 412,150 432,158 440,205 468,214 476,262 505,258 505,335"/>`;
+  g += [[180,285],[240,240],[300,275],[420,215],[440,285]].map(([x, y]) => `<path d="M${x} ${y + 30} v-18 a12 12 0 0 1 24 0 v18z" fill="${hole}"/>`).join('');
+  return g;
+}
+
+function art(i, mode) {
+  const key = i + '_' + mode;
+  if (artCache[key]) return artCache[key];
+  const c = castles[i];
+  const old = mode === 'old';
+  const ruin = !old && c.statusKey === 'ruins';
+  const palace = c.type === 'palace';
+  const neo = /неоготик/.test(c.style);
+  const sil = old ? '#4a3824' : '#07070a';
+  const win = old ? '#e9dcb8' : '#f3c969';
+  const txt = old ? '#3b2c1a' : '#d4af37';
+
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="600" height="400">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${old ? '#f1e6c8' : '#070b18'}"/>
+      <stop offset="1" stop-color="${old ? '#cbb487' : '#2b2440'}"/>
+    </linearGradient>
+    <pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="6" stroke="#6b5434" stroke-width="1" opacity="0.35"/>
+    </pattern>
+  </defs>
+  <rect width="600" height="400" fill="url(#sky)"/>`;
+  if (old) {
+    svg += `<rect width="600" height="400" fill="url(#hatch)"/><circle cx="480" cy="85" r="28" fill="none" stroke="#6b5434" stroke-width="2"/>`;
+    svg += `<path d="M110 80 q8 -8 16 0 q8 -8 16 0 M165 58 q6 -6 12 0 q6 -6 12 0" fill="none" stroke="#4a3824" stroke-width="1.5"/>`;
+  } else {
+    svg += `<circle cx="480" cy="85" r="26" fill="#f5e3a1"/>`;
+  }
+  if (ruin) svg += ruinSVG(sil, '#2b2440');
+  else if (palace) svg += palaceSVG(sil, win, old, neo);
+  else svg += castleSVG(sil, win, old);
+
+  const groundPath = 'M0 330 Q150 312 300 328 T600 322 V400 H0Z';
+  svg += old ? `<path d="${groundPath}" fill="#b39c6e"/><path d="${groundPath}" fill="url(#hatch)"/>` : `<path d="${groundPath}" fill="#0d0d10"/>`;
+  if (old) svg += `<rect x="10" y="10" width="580" height="380" fill="none" stroke="#4a3824" stroke-width="3"/><rect x="18" y="18" width="564" height="364" fill="none" stroke="#4a3824" stroke-width="1"/>`;
+  const sub = old ? 'ХУДОЖЕСТВЕННАЯ РЕКОНСТРУКЦИЯ' : c.status.toUpperCase();
+  svg += `<text x="300" y="360" text-anchor="middle" font-family="Georgia, serif" font-size="24" font-weight="700" fill="${txt}">${c.name}</text>
+  <text x="300" y="378" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" letter-spacing="2" fill="${old ? '#5a452b' : '#8a8170'}">${sub}</text></svg>`;
+
+  artCache[key] = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  return artCache[key];
+}
+
+function imgSrc(i, mode) {
+  const url = mode === 'old' ? castles[i].imageOld : castles[i].imageNow;
+  return url || art(i, mode);
+}
+function imgFallback(el, i, mode) {
+  el.onerror = null;
+  el.src = art(i, mode);
+}
+
+
+function kindOf(c) {
+  if (c.statusKey === 'ruins') return 'ruins';
+  if (c.statusKey === 'restoring') return 'restoring';
+  return c.type;
+}
+const typeName = c => c.type === 'palace' ? 'Дворец' : 'Замок';
+const typeIco = (c, cls = 'type-ico') => {
+  const k = kindOf(c);
+  return `<span class="${cls}" style="background:${KIND_COLOR[k]}" title="${KIND_NAME[k]}">${ICON[k]}</span>`;
+};
+
+function hydrateIcons(root = document) {
+  root.querySelectorAll('[data-icon]').forEach(el => {
+    const svg = ICON[el.dataset.icon];
+    if (svg) el.outerHTML = svg;
+  });
+}
+
+
+const io = ('IntersectionObserver' in window)
+  ? new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.12 })
+  : null;
+
+function observeReveals(root = document) {
+  root.querySelectorAll('.reveal:not(.visible)').forEach(el => io ? io.observe(el) : el.classList.add('visible'));
+}
+
+
+
+let map = null, markerLayer = null, battleLayer = null;
+const markers = [];
+
+function pinIcon(kind, small) {
+  const w = small ? 34 : 40, h = small ? 44 : 52;
+  return L.divIcon({
+    className: 'pin-icon',
+    html: `<div class="pin ${small ? 'small' : ''}">
+      <svg class="shape" viewBox="0 0 40 52"><path d="M20 50.5S37.5 31 37.5 19A17.5 17.5 0 0 0 2.5 19C2.5 31 20 50.5 20 50.5Z" fill="${KIND_COLOR[kind]}"/></svg>
+      <span class="pin-ico">${ICON[kind]}</span>
+    </div>`,
+    iconSize: [w, h],
+    iconAnchor: [w / 2, h - 1],
+    popupAnchor: [0, -h + 6]
+  });
+}
+
+function popupHTML(i) {
+  const c = castles[i];
+  return `<div class="popup">
+    <img src="${imgSrc(i, 'now')}" onerror="imgFallback(this, ${i}, 'now')" alt="${c.name}">
+    <div class="popup-body">
+      <h4>${c.name}</h4>
+      <p>${ICON.calendar}<span>${c.year}</span></p>
+      <p>${ICON.palette}<span>${c.style}</span></p>
+      <p><span class="badge status-${c.statusKey}">${c.status}</span></p>
+      <button class="btn btn-sm" onclick="openModal(${i})">Подробнее ${ICON.right}</button>
+    </div>
+  </div>`;
+}
+
+function initMap() {
+  const mapEl = document.getElementById('map');
+  if (typeof L === 'undefined') {
+    mapEl.innerHTML = '<div class="map-error">Не удалось загрузить библиотеку Leaflet. Проверьте подключение к интернету и CDN-ссылки в &lt;head&gt;.</div>';
+    return;
+  }
+  map = L.map('map', {
+    center: [53.9, 27.5],
+    zoom: 7,
+    scrollWheelZoom: false,
+    attributionControl: false   
+  });
+
+  const TILE_SOURCES = [
+    { url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', opts: { maxZoom: 19 } },
+    { url: 'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', opts: { subdomains: 'abc', maxZoom: 19 } },
+    { url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', opts: { maxZoom: 19 } }
+  ];
+  let tileIndex = 0, tileLayer = null, tileErrors = 0, tileLoads = 0;
+  const useTiles = idx => {
+    if (tileLayer) map.removeLayer(tileLayer);
+    tileErrors = 0; tileLoads = 0;
+    const src = TILE_SOURCES[idx];
+    tileLayer = L.tileLayer(src.url, Object.assign({ attribution: '' }, src.opts));
+    tileLayer.on('tileload', () => tileLoads++);
+    tileLayer.on('tileerror', () => {
+      tileErrors++;
+      if (tileErrors >= 6 && tileLoads === 0 && tileIndex < TILE_SOURCES.length - 1) {
+        tileIndex++;
+        useTiles(tileIndex);
+      }
+    });
+    tileLayer.addTo(map);
+  };
+  useTiles(0);
+
+  markerLayer = L.layerGroup().addTo(map);
+  battleLayer = L.layerGroup().addTo(map);
+
+  castles.forEach((c, i) => {
+    const m = L.marker(c.coords, { icon: pinIcon(kindOf(c)), title: c.name, riseOnHover: true });
+    m.bindPopup(popupHTML(i), { maxWidth: 260, minWidth: 230 });
+    markers.push(m);
+  });
+
+  battles.forEach(b => {
+    L.marker(b.coords, { icon: pinIcon('battle', true), title: b.name })
+      .bindPopup(`<div class="popup-body"><h4>${ICON.battle} ${b.name}</h4><p>${ICON.calendar}<span>${b.year}</span></p><p style="margin-top:6px!important;color:#cfc9bb">${b.text}</p></div>`, { maxWidth: 260 })
+      .addTo(battleLayer);
+  });
+
+
+  const legend = L.control({ position: 'bottomleft' });
+  legend.onAdd = function () {
+    const div = L.DomUtil.create('div', 'map-legend');
+    div.innerHTML = '<b>Обозначения</b>' + ['castle', 'palace', 'ruins', 'restoring', 'battle']
+      .map(k => `<div class="lg-row"><span class="mini" style="background:${KIND_COLOR[k]}">${ICON[k]}</span>${KIND_NAME[k]}</div>`).join('');
+    L.DomEvent.disableClickPropagation(div);
+    L.DomEvent.disableScrollPropagation(div);
+    return div;
+  };
+  legend.addTo(map);
+
+  map.on('click', () => map.scrollWheelZoom.enable());
+  map.on('mouseout', () => map.scrollWheelZoom.disable());
+}
+
+let currentFilter = 'all';
+
+function matches(c, f) {
+  switch (f) {
+    case 'castle': return c.type === 'castle';
+    case 'palace': return c.type === 'palace';
+    case 'ruins': return c.statusKey === 'ruins';
+    case 'preserved': return c.statusKey === 'preserved';
+    default: return true;
+  }
+}
+
+function renderCards() {
+  const list = document.getElementById('castleList');
+  let n = 0;
+  const html = castles.map((c, i) => {
+    if (!matches(c, currentFilter)) return '';
+    const delay = (n++ % 3) * 0.1;
+    return `<article class="card reveal" style="animation-delay:${delay}s">
+      <div class="card-img">
+        <img loading="lazy" src="${imgSrc(i, 'now')}" onerror="imgFallback(this, ${i}, 'now')" alt="${c.name}">
+        <span class="badge status-${c.statusKey}">${c.status}</span>
+        ${typeIco(c)}
+      </div>
+      <div class="card-body">
+        <h3>${c.name}</h3>
+        <p class="place">${ICON.pin}<span>${c.place}</span></p>
+        <div class="meta"><span>${ICON.calendar}${c.year}</span><span>${ICON.palette}${c.style}</span></div>
+        <p class="desc">${c.description}</p>
+        <div class="card-actions">
+          <button class="btn" onclick="openModal(${i})">Подробнее</button>
+          <button class="btn-ghost" onclick="showOnMap(${i})">${ICON.pin} На карте</button>
+        </div>
+      </div>
+    </article>`;
+  }).join('');
+  list.innerHTML = html || '<p class="empty">Нет объектов по выбранному фильтру.</p>';
+  observeReveals(list);
+}
+
+function applyFilter(f, fly = true) {
+  currentFilter = f;
+  document.querySelectorAll('#filters button').forEach(b => b.classList.toggle('active', b.dataset.filter === f));
+  renderCards();
+  const vis = castles.map((c, i) => i).filter(i => matches(castles[i], f));
+  document.getElementById('filterInfo').textContent =
+    `Показано объектов: ${vis.length} из ${castles.length}` + (f === 'all' ? ` · мест битв: ${battles.length}` : '');
+
+  if (!map) return;
+  markerLayer.clearLayers();
+  vis.forEach(i => markerLayer.addLayer(markers[i]));
+  if (f === 'all') { if (!map.hasLayer(battleLayer)) battleLayer.addTo(map); }
+  else if (map.hasLayer(battleLayer)) map.removeLayer(battleLayer);
+
+  if (fly && vis.length) {
+    map.flyToBounds(L.latLngBounds(vis.map(i => castles[i].coords)).pad(0.2), { maxZoom: 9, duration: 0.8 });
+  }
+}
+
+function initFilters() {
+  document.querySelectorAll('#filters button').forEach(btn => {
+    const f = btn.dataset.filter;
+    const count = castles.filter(c => matches(c, f)).length;
+    btn.insertAdjacentHTML('beforeend', ` <small>(${count})</small>`);
+    btn.addEventListener('click', () => applyFilter(f));
+  });
+}
+
+function showOnMap(i) {
+  closeModal();
+  if (!map) return;
+  if (!matches(castles[i], currentFilter)) applyFilter('all', false);
+  document.getElementById('map').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  setTimeout(() => {
+    map.once('moveend', () => markers[i].openPopup());
+    map.flyTo(castles[i].coords, 12, { duration: 1.2 });
+  }, 450);
+}
+
+
+function compareHTML(i) {
+  const c = castles[i];
+  const nowLink = filePage(c.imageNow), oldLink = filePage(c.imageOld);
+  const credit = [
+    nowLink ? `<a href="${nowLink}" target="_blank" rel="noopener">фото «Стало»</a>` : '',
+    oldLink ? `<a href="${oldLink}" target="_blank" rel="noopener">изображение «Было»</a>` : ''
+  ].filter(Boolean).join(' · ');
+  return `<div class="compare">
+    <img class="cmp-now" src="${imgSrc(i, 'now')}" onerror="imgFallback(this, ${i}, 'now')" alt="${c.name} сегодня">
+    <img class="cmp-old" src="${imgSrc(i, 'old')}" onerror="imgFallback(this, ${i}, 'old')" alt="${c.name} в прошлом">
+    <span class="cmp-label left">Было<small>${c.oldCaption || ''}</small></span>
+    <span class="cmp-label right">Стало<small>сегодня</small></span>
+    <div class="cmp-divider"></div>
+    <input type="range" min="0" max="100" value="50" step="0.5" class="cmp-range" aria-label="Сравнение: было и стало">
+  </div>
+  ${credit ? `<p class="credit">${ICON.camera} Wikimedia Commons: ${credit}</p>` : ''}`;
+}
+
+function initCompare(root) {
+  root.querySelectorAll('.compare').forEach(box => {
+    const range = box.querySelector('.cmp-range');
+    const top = box.querySelector('.cmp-old');
+    const divider = box.querySelector('.cmp-divider');
+    const T = 48;
+    const update = () => {
+      const v = parseFloat(range.value) / 100;
+      divider.style.left = `calc(${T / 2}px + (100% - ${T}px) * ${v})`;
+      const clip = `inset(0 calc(100% - ${T / 2}px - (100% - ${T}px) * ${v}) 0 0)`;
+      top.style.clipPath = clip;
+      top.style.webkitClipPath = clip;
+    };
+    range.addEventListener('input', update);
+
+    let dragging = false;
+    const setFromX = x => {
+      const r = box.getBoundingClientRect();
+      const v = ((x - r.left - T / 2) / (r.width - T)) * 100;
+      range.value = Math.max(0, Math.min(100, v));
+      update();
+    };
+    box.addEventListener('pointerdown', e => {
+      if (e.target === range) return;
+      dragging = true; setFromX(e.clientX);
+    });
+    window.addEventListener('pointermove', e => { if (dragging) setFromX(e.clientX); });
+    window.addEventListener('pointerup', () => dragging = false);
+    update();
+  });
+}
+
+function initCompareSection() {
+  const sel = document.getElementById('compareSelect');
+  sel.innerHTML = castles.map((c, i) => `<option value="${i}">${c.name}</option>`).join('');
+  const render = () => {
+    const i = +sel.value, c = castles[i];
+    const stage = document.getElementById('compareStage');
+    stage.innerHTML = compareHTML(i) + `<p class="hint">${ICON.arrows} Перетащите ползунок</p>`;
+    initCompare(stage);
+    document.getElementById('compareInfo').innerHTML = `
+      <span class="badge status-${c.statusKey}">${c.status}</span>
+      <h3 style="margin-top:10px">${c.name}</h3>
+      <div class="meta"><span>${ICON.calendar}${c.year}</span><span>${ICON.palette}${c.style}</span></div>
+      <p>${c.description}</p>
+      <button class="btn" onclick="openModal(${i})">Подробнее ${ICON.right}</button>`;
+  };
+  sel.addEventListener('change', render);
+  render();
+}
+
+const modal = document.getElementById('modal');
+let modalIndex = null;
+
+function openModal(i) {
+  i = (i + castles.length) % castles.length;
+  modalIndex = i;
+  if (map) map.closePopup();
+  const c = castles[i];
+  const prev = castles[(i - 1 + castles.length) % castles.length];
+  const next = castles[(i + 1) % castles.length];
+
+  modal.innerHTML = `
+  <div class="modal-content" role="dialog" aria-modal="true" aria-label="${c.name}">
+    <button class="modal-close" aria-label="Закрыть">${ICON.close}</button>
+    <div class="modal-hero">
+      <img src="${imgSrc(i, 'now')}" onerror="imgFallback(this, ${i}, 'now')" alt="${c.name}">
+      <div class="modal-hero-text">
+        <span class="badge status-${c.statusKey}">${c.status}</span>
+        <h2>${typeIco(c)} ${c.name}</h2>
+        <p>${ICON.pin} ${c.place}</p>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="facts">
+        <div class="fact"><small>${ICON.calendar}Год</small><b>${c.year}</b></div>
+        <div class="fact"><small>${ICON.palette}Стиль</small><b>${c.style}</b></div>
+        <div class="fact"><small>${ICON.shield}Статус</small><b>${c.status}</b></div>
+        <div class="fact"><small>${ICON.info}Тип</small><b>${typeName(c)}</b></div>
+      </div>
+      <h3>${ICON.scroll} История</h3>
+      <p>${c.history}</p>
+      <h3>${ICON.clock} Было / Стало</h3>
+      ${compareHTML(i)}
+      <p class="hint">${ICON.arrows} Двигайте ползунок, чтобы сравнить прошлое и настоящее</p>
+      ${c.legends.length ? `<h3>${ICON.ghost} Легенды</h3>${c.legends.map(l => `<blockquote class="legend">${l}</blockquote>`).join('')}` : ''}
+      <div class="modal-actions">
+        <button class="btn-ghost" onclick="openModal(${i - 1})">${ICON.left} ${prev.name}</button>
+        <button class="btn" onclick="showOnMap(${i})">${ICON.pin} Показать на карте</button>
+        <button class="btn-ghost" onclick="openModal(${i + 1})">${next.name} ${ICON.right}</button>
+      </div>
+    </div>
+  </div>`;
+  showModal();
+  initCompare(modal);
+}
+
+function openLegend(k) {
+  const lg = featuredLegends[k];
+  const c = castles[lg.idx];
+  modalIndex = null;
+  modal.innerHTML = `
+  <div class="modal-content" role="dialog" aria-modal="true" aria-label="${lg.title}" style="max-width:720px">
+    <button class="modal-close" aria-label="Закрыть">${ICON.close}</button>
+    <div class="legend-modal-top">
+      <div class="legend-art">${LEGEND_ART[lg.art]}</div>
+      <h2>${lg.title}</h2>
+      <p>${ICON.pin} ${c.name} · ${c.place}</p>
+    </div>
+    <div class="modal-body">
+      ${lg.full.map(p => `<blockquote class="legend">${p}</blockquote>`).join('')}
+      <div class="modal-actions">
+        <button class="btn-ghost" onclick="openLegend(${(k + featuredLegends.length - 1) % featuredLegends.length})">${ICON.left} Предыдущая</button>
+        <button class="btn" onclick="openModal(${lg.idx})">${ICON[kindOf(c)]} О замке</button>
+        <button class="btn-ghost" onclick="openLegend(${(k + 1) % featuredLegends.length})">Следующая ${ICON.right}</button>
+      </div>
+    </div>
+  </div>`;
+  showModal();
+}
+
+function showModal() {
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('no-scroll');
+  const content = modal.querySelector('.modal-content');
+  if (content) content.scrollTop = 0;
+  const btn = modal.querySelector('.modal-close');
+  if (btn) btn.focus({ preventScroll: true });
+}
+
+function closeModal() {
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('no-scroll');
+  modalIndex = null;
+}
+
+modal.addEventListener('click', e => {
+  if (e.target === modal || e.target.closest('.modal-close')) closeModal();
+});
+document.addEventListener('keydown', e => {
+  if (!modal.classList.contains('open')) return;
+  if (e.key === 'Escape') closeModal();
+  if (modalIndex !== null && !e.target.matches('input, select')) {
+    if (e.key === 'ArrowRight') openModal(modalIndex + 1);
+    if (e.key === 'ArrowLeft') openModal(modalIndex - 1);
+  }
+});
+
+function initTimeline() {
+  const tabs = document.getElementById('tlTabs');
+  tabs.innerHTML = Object.entries(timelines)
+    .map(([k, t], n) => `<button data-tl="${k}" class="${n === 0 ? 'active' : ''}">${ICON.castle} ${t.title}</button>`).join('');
+  tabs.addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    tabs.querySelectorAll('button').forEach(x => x.classList.toggle('active', x === b));
+    renderTimeline(b.dataset.tl);
+  });
+  renderTimeline(Object.keys(timelines)[0]);
+}
+
+function renderTimeline(key) {
+  const box = document.getElementById('timelineBox');
+  box.innerHTML = timelines[key].items.map(it => `
+    <div class="tl-item reveal">
+      <div class="tl-card">
+        <div class="tl-year">${it.year}</div>
+        <h4>${it.title}</h4>
+        <p>${it.text}</p>
+      </div>
+    </div>`).join('');
+  observeReveals(box);
+}
+
+function initLegends() {
+  const grid = document.getElementById('legendGrid');
+  grid.innerHTML = featuredLegends.map((l, k) => {
+    const c = castles[l.idx];
+    return `<div class="flip reveal" style="animation-delay:${k * 0.12}s" data-k="${k}" tabindex="0" role="button" aria-label="${l.title}">
+      <div class="flip-inner">
+        <div class="flip-face flip-front">
+          <div class="legend-art" style="animation-delay:${k * 0.5}s">${LEGEND_ART[l.art]}</div>
+          <h3>${l.title}</h3>
+          <p>${c.name}</p>
+          <div class="turn">${ICON.rotate} Переверни</div>
+        </div>
+        <div class="flip-face flip-back">
+          <h4>${l.title}</h4>
+          <p>«${l.short}»</p>
+          <button class="btn btn-sm" data-open="${k}">${ICON.book} Читать легенду</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  grid.addEventListener('click', e => {
+    const open = e.target.closest('[data-open]');
+    if (open) { e.stopPropagation(); openLegend(+open.dataset.open); return; }
+    const card = e.target.closest('.flip');
+    if (card) card.classList.toggle('flipped');
+  });
+  grid.addEventListener('keydown', e => {
+    const card = e.target.closest('.flip');
+    if (card && (e.key === 'Enter' || e.key === ' ') && e.target === card) {
+      e.preventDefault();
+      openLegend(+card.dataset.k);
+    }
+  });
+  observeReveals(grid);
+}
+
+function initHero() {
+  const stars = document.getElementById('stars');
+  let html = '';
+  for (let k = 0; k < 70; k++) {
+    html += `<i style="left:${Math.random() * 100}%;top:${Math.random() * 75}%;animation-delay:${(Math.random() * 3).toFixed(2)}s;transform:scale(${(Math.random() * 1.2 + 0.4).toFixed(2)})"></i>`;
+  }
+  stars.innerHTML = html;
+
+  const data = [
+    { n: castles.filter(c => c.type === 'castle').length, t: 'замков' },
+    { n: castles.filter(c => c.type === 'palace').length, t: 'дворцов' },
+    { n: castles.filter(c => /ЮНЕСКО/.test(c.status)).length, t: 'объекта ЮНЕСКО' },
+    { n: 700, t: 'лет истории', plus: true }
+  ];
+  const box = document.getElementById('stats');
+  box.innerHTML = data.map(d => `<div class="stat"><b data-to="${d.n}" data-plus="${d.plus ? 1 : 0}">0</b><span>${d.t}</span></div>`).join('');
+  box.querySelectorAll('b').forEach(el => {
+    const to = +el.dataset.to, plus = el.dataset.plus === '1';
+    const start = performance.now(), dur = 1400;
+    const step = now => {
+      const p = Math.min(1, (now - start) / dur);
+      el.textContent = Math.round(to * (1 - Math.pow(1 - p, 3))) + (plus && p === 1 ? '+' : '');
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  });
+}
+
+
+function initScrollUI() {
+  const bar = document.getElementById('progress');
+  const toTop = document.getElementById('toTop');
+  const onScroll = () => {
+    const h = document.documentElement.scrollHeight - innerHeight;
+    bar.style.width = (h > 0 ? (scrollY / h) * 100 : 0) + '%';
+    toTop.classList.toggle('show', scrollY > 600);
+  };
+  addEventListener('scroll', onScroll, { passive: true });
+  toTop.addEventListener('click', () => scrollTo({ top: 0, behavior: 'smooth' }));
+  onScroll();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const yearEl = document.getElementById('year');
+  if (yearEl) yearEl.textContent = new Date().getFullYear();
+  hydrateIcons();
+  initHero();
+  initMap();
+  initFilters();
+  applyFilter('all', false);
+  initCompareSection();
+  initTimeline();
+  initLegends();
+  initScrollUI();
+  observeReveals();
+  if (map) setTimeout(() => map.invalidateSize(), 300);
+});
+</script>
+
+<script>
+
+
+
+(function () {
+  const KNIGHT = `<svg viewBox="0 0 64 64" aria-hidden="true">
+    <path d="M33 13c3-7 12-10 19-6-2 1-3 3-3 5 3 0 5 2 6 4-5-1-10 0-14 3z" fill="#c8553d"/>
+    <path d="M14 34c0-12 8-21 18-21s18 9 18 21v12c0 6-8 11-18 11s-18-5-18-11z" fill="#ececf1" stroke="#1a1a1a" stroke-width="2"/>
+    <path d="M32 13v17" stroke="#a8a8b3" stroke-width="2.5"/>
+    <rect x="18" y="31" width="28" height="6" rx="3" fill="#1a1a1a"/>
+    <circle class="kn-eye" cx="26" cy="34" r="1.8" fill="#f1d77a"/>
+    <circle class="kn-eye" cx="38" cy="34" r="1.8" fill="#f1d77a"/>
+    <g fill="#1a1a1a"><circle cx="26" cy="44" r="1.3"/><circle cx="32" cy="45" r="1.3"/><circle cx="38" cy="44" r="1.3"/><circle cx="29" cy="49" r="1.3"/><circle cx="35" cy="49" r="1.3"/></g>
+    <path d="M15 46c5 4 29 4 34 0" stroke="#d4af37" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </svg>`;
+
+  const $ = id => document.getElementById(id);
+  const win = $('chatWindow'), body = $('chatBody'), form = $('chatForm'), input = $('chatInput');
+  const launcher = $('chatLauncher'), teaser = $('chatTeaser'), badge = $('chatBadge');
+  document.querySelectorAll('[data-knight]').forEach(el => el.innerHTML = KNIGHT);
+
+  let greeted = false, busy = false, ctx = null;
+  const NOW = new Date().getFullYear();
+
+  const esc = s => String(s).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+  const norm = s => s.toLowerCase().replace(/ё/g, 'е').replace(/[^a-zа-я0-9\s-]/g, ' ').replace(/\s+/g, ' ').trim();
+  const plural = (n, f) => { const a = Math.abs(n) % 100, b = a % 10; return a > 10 && a < 20 ? f[2] : b > 1 && b < 5 ? f[1] : b === 1 ? f[0] : f[2]; };
+  const km = (a, b) => {
+    const R = 6371, r = x => x * Math.PI / 180;
+    const dLat = r(b[0] - a[0]), dLon = r(b[1] - a[1]);
+    const h = Math.sin(dLat / 2) ** 2 + Math.cos(r(a[0])) * Math.cos(r(b[0])) * Math.sin(dLon / 2) ** 2;
+    return Math.round(2 * R * Math.asin(Math.sqrt(h)));
+  };
+  const lev = (a, b) => {
+    const d = Array.from({ length: a.length + 1 }, (_, i) => [i]);
+    for (let j = 1; j <= b.length; j++) d[0][j] = j;
+    for (let i = 1; i <= a.length; i++)
+      for (let j = 1; j <= b.length; j++)
+        d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    return d[a.length][b.length];
+  };
+
+  const ALIASES = [
+    'мир|мира|миру|мире|миром|мирск\\S*',
+    'несвиж\\S*|нясвиж\\S*',
+    'лида|лиды|лиде|лиду|лидой|лидск\\S*',
+    'крев\\S*|крэв\\S*',
+    'гольшан\\S*|гальшан\\S*|ольшанск\\S*',
+    'новогруд\\S*|навагруд\\S*',
+    'любч\\S*',
+    'смолян\\S*|смальян\\S*|ковел\\S*',
+    'гродн\\S*',
+    'свислоч\\S*',
+    'геранен\\S*|гаштольд\\S*',
+    'ружан\\S*',
+    'кос?сов\\S*|пусловск\\S*',
+    'жилич\\S*|булгак\\S*',
+    'святск\\S*|волович\\S*'
+  ];
+  const REGS = ALIASES.map(a => new RegExp('(?:^|\\s)(?:' + a + ')(?=\\s|$)'));
+  const STEMS = ['мирск', 'несвиж', 'лидск', 'кревск', 'гольшан', 'новогруд', 'любчан', 'смолян', 'гродн', 'свислоч', 'геранен', 'ружан', 'коссов', 'жилич', 'святск'];
+  const YEARNUM = [1520, 1583, 1323, 1330, 1350, 1250, 1581, 1550, 1390, 1550, 1500, 1602, 1838, 1825, 1779];
+  const STOP = /^(минск|гомел|брест|витебск|могилев|светлогорск|замк|замок|дворц|город)/;
+  const stripRegions = t => t.replace(/(гродненск|минск|брестск|витебск|могилевск|гомельск)\S*\s+обл\S*/g, ' ');
+
+  function findCastles(t) {
+    const s = stripRegions(t), res = [];
+    REGS.forEach((r, i) => { const m = r.exec(s); if (m) res.push({ i, pos: m.index }); });
+    if (!res.length) {
+      s.split(' ').forEach((tok, pos) => {
+        if (tok.length < 5 || STOP.test(tok)) return;
+        STEMS.forEach((st, i) => {
+          if (lev(tok.slice(0, st.length), st) <= 1 && !res.some(r => r.i === i)) res.push({ i, pos: pos * 100 });
+        });
+      });
+    }
+    return res.sort((a, b) => a.pos - b.pos).map(r => r.i);
+  }
+
+  const CITIES = [
+    { re: /(^|\s)минск\S*/, name: 'Минска', c: [53.9023, 27.5619] },
+    { re: /светлогорск/, name: 'Светлогорска', c: [52.6329, 29.7389] },
+    { re: /гомел/, name: 'Гомеля', c: [52.4345, 30.9754] },
+    { re: /(^|\s)брест/, name: 'Бреста', c: [52.0976, 23.7341] },
+    { re: /витебск/, name: 'Витебска', c: [55.1904, 30.2049] },
+    { re: /могилев/, name: 'Могилёва', c: [53.9007, 30.3314] }
+  ];
+  const findCity = t => CITIES.find(c => c.re.test(stripRegions(t)));
+  const MINSK = CITIES[0];
+
+  const REGIONS = [
+    { re: /гродненск/, stem: 'гродненская', name: 'Гродненской' },
+    { re: /минск\S*\s+обл/, stem: 'минская', name: 'Минской' },
+    { re: /брестск/, stem: 'брестская', name: 'Брестской' },
+    { re: /витебск\S*\s+обл/, stem: 'витебская', name: 'Витебской' },
+    { re: /могилевск/, stem: 'могилевская', name: 'Могилёвской' },
+    { re: /гомельск/, stem: 'гомельская', name: 'Гомельской' }
+  ];
+
+  const INT = {
+    where: /(^|\s)(где|куда)(\s|$)|находит|располож|адрес|област|район|в каком (городе|месте)/,
+    route: /добрат|доехат|проехат|маршрут|как попасть|как найти|дорог[аиу] до|автобус|электричк/,
+    when: /когда|(^|\s)год(у|а)?(\s|$)|(^|\s)век|постро|основан|возвед|сколько (ему )?лет|возраст/,
+    who: /кто (его |ее )?(постро|основ|возв|создал)|владел|хозя|основател|принадлеж/,
+    style: /стил|архитектур/,
+    status: /сохран|состояни|руин|разруш|восстан|реставр|статус|цел(ый|ая)|посетит|зайти|открыт|музей/,
+    legend: /легенд|миф|призрак|привидени|(^|\s)дам[аыуе]|предани|тайн|подземн|клад|сокровищ/,
+    history: /истори|подробн|что (это|такое|за)|опиши|интересн|факт/,
+    photo: /фото|покажи|картин|изображ|как выглядит|снимок/,
+    map: /на карте|карт[аеуы]/,
+    distance: /расстояни|далеко|сколько (км|километр)|(^|\s)км(\s|$)|километр/
+  };
+  const G = {
+    greet: /^(привет|здравств|добр(ый|ое|ого)\s|хай|салют|hello|hi(\s|$)|приветик)/,
+    thanks: /спасиб|благодар|(^|\s)(класс|супер|отлично|круто)(\s|$)/,
+    bye: /(^|\s)пока(\s|$)|до свидан|до встреч/,
+    me: /кто ты|ты кто|как тебя зовут|тво[е] имя|кто такой ясь/,
+    help: /помощ|помоги|что (ты )?(умеешь|можешь|знаешь)|команд|что (можно )?спросить/,
+    author: /автор|разработчик|кто (сделал|создал|разработал)/,
+    count: /сколько (всего )?(замк|дворц|объект)/,
+    unesco: /юнеско|unesco/,
+    oldest: /(сам(ый|ая|ое|ого|ые)|наиболее) (стар|древн)/,
+    newest: /(сам(ый|ая|ое|ого|ые)) (нов|молод|поздн)/,
+    lPalaces: /((какие|список|все|перечисл|покажи).*дворц)|^дворцы$/,
+    lRuins: /((какие|список|все|перечисл|где).*(руин|разруш))|^руины$/,
+    lPreserved: /(какие|список|все|перечисл).*(сохран|целы)/,
+    lRestoring: /(какие|список|что).*(восстанавл|реставрир)/,
+    lCastles: /((какие|список|все|перечисл|покажи).*замк)|^замки$/,
+    recommend: /посовет|рекоменд|куда (поехать|съездить|сходить)|что (посетить|посмотреть)|с чего начать|(сам(ый|ое|ая)) красив/,
+    random: /случайн|любой (замок|объект)|удиви/,
+    battles: /битв|сражени|(^|\s)бо(й|и)(\s|$)|войн/,
+    region: /област/
+  };
+
+  const B = i => `<b>${castles[i].name}</b>`;
+  const lonlat = c => `${c.coords[1]},${c.coords[0]}`;
+  const yaMap = c => `https://yandex.by/maps/?pt=${lonlat(c)}&z=14&l=map`;
+  const yaRoute = c => `https://yandex.by/maps/?rtext=~${c.coords[0]},${c.coords[1]}&rtt=auto`;
+  const actions = (i, extra = '') => `<div class="chat-actions">
+      <button class="chat-btn" onclick="openModal(${i})">${ICON.info} Подробнее</button>
+      <button class="chat-btn" onclick="chatMap(${i})">${ICON.pin} На карте</button>${extra}</div>`;
+  const listHTML = (ids, title) => `<p>${title}</p><ul class="chat-list">` +
+    ids.map(i => `<li><button class="chat-link" onclick="chatAboutIdx(${i})">${castles[i].name}</button> <span>· ${castles[i].year}</span></li>`).join('') + '</ul>';
+  const STYLE_NOTES = [
+    [/неоготик/, 'неоготика — романтическое подражание средневековым замкам, модное в XIX веке'],
+    [/(^|[^о])готик/, 'готика — суровые кирпичные стены, стрельчатые арки и мощные башни'],
+    [/ренессанс/, 'ренессанс — симметрия, аркады, декоративные аттики и итальянское изящество'],
+    [/барокко/, 'барокко — пышный декор, плавные изгибы и торжественность'],
+    [/классицизм/, 'классицизм — строгие колонны, портики и симметрия по античным образцам'],
+    [/бастион/, 'бастионная система — земляные валы и выступающие бастионы для защиты от пушек'],
+    [/оборонит/, 'оборонительное зодчество — главное здесь не красота, а неприступность']
+  ];
+  const FOLLOW = {
+    where: 'Где он находится?', when: 'Когда построен?', legend: 'Какие о нём легенды?',
+    route: 'Как добраться?', status: 'В каком он состоянии?', photo: 'Покажи фото', history: 'Расскажи историю'
+  };
+  const followChips = asked => Object.keys(FOLLOW).filter(k => !asked.includes(k)).slice(0, 3).map(k => FOLLOW[k]);
+  const START_CHIPS = ['Где находится Мирский замок?', 'Легенда о Чёрной даме', 'Какие замки в руинах?', 'Самый старый замок', 'Сколько км от Мира до Несвижа?'];
+
+  const A = {
+    overview(i) {
+      const c = castles[i];
+      return `<p>${B(i)} — ${c.description}</p>
+        <div class="facts-mini">
+          <span>${ICON.pin}${c.place}</span>
+          <span>${ICON.calendar}${c.year}</span>
+          <span>${ICON.palette}${c.style}</span>
+          <span>${ICON.shield}${c.status}</span>
+        </div>${actions(i)}`;
+    },
+    where(i) {
+      const c = castles[i];
+      return `<p>${B(i)} находится здесь: <b>${c.place}</b>.</p>
+        <p>Координаты: ${c.coords[0]}, ${c.coords[1]}. От Минска — около ${km(MINSK.c, c.coords)} км по прямой.</p>
+        ${actions(i, `<a class="chat-btn" href="${yaMap(c)}" target="_blank" rel="noopener">${ICON.map} Яндекс.Карты</a>`)}`;
+    },
+    route(i) {
+      const c = castles[i], d = km(MINSK.c, c.coords);
+      return `<p>Как добраться до ${B(i)}: объект находится по адресу ${c.place}.</p>
+        <p>От Минска — около <b>${d} км</b> по прямой (по дорогам обычно на 20–30% больше, примерно ${Math.round(d * 1.25)} км). Удобнее всего ехать на автомобиле или рейсовым автобусом до ближайшего райцентра.</p>
+        <div class="chat-actions"><a class="chat-btn" href="${yaRoute(c)}" target="_blank" rel="noopener">${ICON.map} Построить маршрут</a>
+        <button class="chat-btn" onclick="chatMap(${i})">${ICON.pin} На карте</button></div>`;
+    },
+    when(i) {
+      const c = castles[i], age = NOW - YEARNUM[i];
+      return `<p>${B(i)} построен: <b>${c.year}</b>.</p><p>Это значит, что ему примерно <b>${age} ${plural(age, ['год', 'года', 'лет'])}</b>.</p>`;
+    },
+    who(i) { return `<p>${castles[i].history}</p>${actions(i)}`; },
+    history(i) { return `<p><b>История: ${castles[i].name}</b></p><p>${castles[i].history}</p>${actions(i)}`; },
+    style(i) {
+      const c = castles[i], s = norm(c.style);
+      const notes = STYLE_NOTES.filter(([re]) => re.test(s)).map(([, t]) => `<li>${t}</li>`).join('');
+      return `<p>Архитектурный стиль ${B(i)}: <b>${c.style}</b>.</p>${notes ? `<ul>${notes}</ul>` : ''}`;
+    },
+    status(i) {
+      const c = castles[i];
+      const note = {
+        preserved: 'Здание сохранилось до наших дней. Перед поездкой уточните режим работы и возможность посещения.',
+        ruins: 'От объекта остались руины — их можно осмотреть снаружи. Очень атмосферное место для прогулки и фото!',
+        restoring: 'Сейчас ведутся восстановительные работы, часть объекта уже доступна для посетителей.'
+      }[c.statusKey];
+      return `<p>Состояние ${B(i)}: <b>${c.status}</b>.</p><p>${note}</p>`;
+    },
+    legend(i) {
+      const c = castles[i];
+      const k = featuredLegends.findIndex(l => l.idx === i);
+      const extra = k >= 0 ? `<div class="chat-actions"><button class="chat-btn" onclick="openLegend(${k})">${ICON.book} Читать полностью</button></div>` : '';
+      return `<p>Легенды о ${B(i)}:</p>${c.legends.map(l => `<p>«${l}»</p>`).join('')}${extra}`;
+    },
+    photo(i) {
+      return `<p>Вот как выглядит ${B(i)} сегодня:</p>
+        <img src="${imgSrc(i, 'now')}" onerror="imgFallback(this, ${i}, 'now')" alt="${castles[i].name}">
+        <div class="chat-actions"><button class="chat-btn" onclick="openModal(${i})">${ICON.clock} Было / Стало</button></div>`;
+    },
+    map(i) { return `<p>Показываю ${B(i)} на карте!</p>`; }
+  };
+
+  const legendByKeyword = t => {
+    if (/черн\S* дам|барбар/.test(t)) return 0;
+    if (/бел\S* дам/.test(t)) return 1;
+    if (/подземн|тоннел|апостол/.test(t)) return 2;
+    if (/кейстут|призрак/.test(t)) return 3;
+    return -1;
+  };
+  const featuredAnswer = k => {
+    const l = featuredLegends[k];
+    return {
+      html: `<p><b>${l.title}</b></p><p>${l.full[0]}</p><p>${l.full[1]}</p>
+        <div class="chat-actions"><button class="chat-btn" onclick="openLegend(${k})">${ICON.book} Читать полностью</button>
+        <button class="chat-btn" onclick="openModal(${l.idx})">${ICON.info} О замке</button></div>`,
+      ctx: l.idx
+    };
+  };
+
+  function answer(raw) {
+    const t = norm(raw);
+    if (!t) return { html: 'Напишите, пожалуйста, вопрос.' };
+    const found = findCastles(t);
+    const city = findCity(t);
+
+    if (found.length >= 2) {
+      const [a, b] = found;
+      if (INT.distance.test(t) || /(^|\s)от\s.*\sдо\s/.test(t)) {
+        const d = km(castles[a].coords, castles[b].coords);
+        return {
+          html: `<p>Расстояние между ${B(a)} и ${B(b)} — около <b>${d} км</b> по прямой.</p>` +
+            (d < 70 ? '<p>Совсем рядом — их легко объединить в одну поездку!</p>' : '<p>Для поездки лучше выделить целый день.</p>'),
+          ctx: b
+        };
+      }
+      const rows = [['Год', 'year'], ['Стиль', 'style'], ['Статус', 'status']];
+      return {
+        html: `<p>Сравним объекты:</p><table class="chat-table"><tr><th></th><th>${castles[a].name}</th><th>${castles[b].name}</th></tr>` +
+          rows.map(([n, f]) => `<tr><th>${n}</th><td>${castles[a][f]}</td><td>${castles[b][f]}</td></tr>`).join('') +
+          `<tr><th>Расстояние</th><td colspan="2">≈ ${km(castles[a].coords, castles[b].coords)} км по прямой</td></tr></table>`,
+        ctx: b
+      };
+    }
+
+    if (city && (INT.distance.test(t) || /(^|\s)(от|до|из)\s/.test(t)) && (found.length || ctx !== null)) {
+      const i = found.length ? found[0] : ctx;
+      const d = km(city.c, castles[i].coords);
+      return {
+        html: `<p>От ${city.name} до ${B(i)} — около <b>${d} км</b> по прямой (по дорогам примерно ${Math.round(d * 1.25)} км).</p>
+          <div class="chat-actions"><a class="chat-btn" href="${yaRoute(castles[i])}" target="_blank" rel="noopener">${ICON.map} Построить маршрут</a></div>`,
+        ctx: i
+      };
+    }
+
+    const castleIntents = () => {
+      const list = Object.keys(INT).filter(k => k !== 'distance' && INT[k].test(t));
+      if (list.includes('map')) { const p = list.indexOf('photo'); if (p >= 0) list.splice(p, 1); }
+      if (list.includes('who') && !/когда|год/.test(t)) { const p = list.indexOf('when'); if (p >= 0) list.splice(p, 1); }
+      if (list.includes('who') && list.includes('history')) list.splice(list.indexOf('history'), 1);
+      if (list.includes('route') && list.includes('where')) list.splice(list.indexOf('where'), 1);
+      return list;
+    };
+    const castleAnswer = i => {
+      const list = castleIntents();
+      if (!list.length) return { html: A.overview(i), ctx: i, chips: followChips([]) };
+      const html = list.map(k => A[k](i)).join('<hr style="border:none;border-top:1px solid rgba(255,255,255,.08);margin:10px 0">');
+      return {
+        html, ctx: i, chips: followChips(list),
+        after: list.includes('map') ? () => setTimeout(() => chatMap(i), 500) : null
+      };
+    };
+    if (found.length === 1) return castleAnswer(found[0]);
+
+    // --- общие вопросы ---
+    if (G.me.test(t)) return { html: `<p>Я — <b>Ясь</b>, рыцарь-экскурсовод этого сайта.</p><p>Я знаю всё о 15 замках и дворцах Беларуси: где они находятся, когда и кем построены, в каком стиле, в каком состоянии сейчас и какие легенды о них ходят. Спрашивайте!</p>`, chips: START_CHIPS.slice(0, 3) };
+    if (G.author.test(t)) return { html: `<p>Сайт разработал <b>Лыжак Тимур</b>, учащийся 9 «В» класса «Средней школы №11 г. Светлогорска», для Республиканского конкурса <b>«ПРОТехно»</b>.</p><p>Вопросы и предложения: <a class="chat-link" href="mailto:timurlyzak148@gmail.com">timurlyzak148@gmail.com</a></p>` };
+    if (G.help.test(t)) return {
+      html: `<p>Вот что я умею:</p><ul>
+        <li>рассказать, <b>где находится</b> замок и как до него добраться;</li>
+        <li>назвать <b>год постройки</b>, стиль и состояние;</li>
+        <li>рассказать <b>историю и легенды</b>;</li>
+        <li>показать <b>фото</b> и объект <b>на карте</b>;</li>
+        <li>посчитать <b>расстояние</b> между замками или от города;</li>
+        <li>составить <b>списки</b>: руины, дворцы, объекты ЮНЕСКО, по областям.</li></ul>`,
+      chips: START_CHIPS
+    };
+    if (G.count.test(t)) {
+      const nc = castles.filter(c => c.type === 'castle').length, np = castles.length - nc;
+      return { html: `<p>На сайте <b>${castles.length}</b> объектов: ${nc} ${plural(nc, ['замок', 'замка', 'замков'])} и ${np} ${plural(np, ['дворец', 'дворца', 'дворцов'])}, а ещё на карте отмечены ${battles.length} места знаменитых битв.</p>`, chips: ['Какие есть дворцы?', 'Какие замки в руинах?'] };
+    }
+    if (G.region.test(t)) {
+      const r = REGIONS.find(x => x.re.test(t));
+      if (r) {
+        const ids = castles.map((c, i) => i).filter(i => norm(castles[i].place).includes(r.stem));
+        return ids.length
+          ? { html: listHTML(ids, `Объекты в ${r.name} области (${ids.length}):`) }
+          : { html: `<p>В ${r.name} области на нашем сайте пока нет объектов. Зато их много в Гродненской области!</p>`, chips: ['Замки Гродненской области'] };
+      }
+    }
+    if (G.unesco.test(t)) {
+      const ids = castles.map((c, i) => i).filter(i => /ЮНЕСКО/.test(castles[i].status));
+      return { html: listHTML(ids, 'В Список всемирного наследия ЮНЕСКО входят:') + '<p>Мирский замок включён в 2000 году, резиденция Радзивиллов в Несвиже — в 2005 году.</p>' };
+    }
+    if (G.oldest.test(t) || G.newest.test(t)) {
+      const old = G.oldest.test(t);
+      const ids = castles.map((c, i) => i).sort((a, b) => old ? YEARNUM[a] - YEARNUM[b] : YEARNUM[b] - YEARNUM[a]).slice(0, 3);
+      return { html: `<p>${old ? 'Самый древний' : 'Самый «молодой»'} объект на сайте — ${B(ids[0])} (${castles[ids[0]].year}).</p>` + listHTML(ids, 'Тройка лидеров:'), ctx: ids[0] };
+    }
+    if (G.lPalaces.test(t)) return { html: listHTML(castles.map((c, i) => i).filter(i => castles[i].type === 'palace'), 'Дворцы на нашем сайте:') };
+    if (G.lRuins.test(t)) return { html: listHTML(castles.map((c, i) => i).filter(i => castles[i].statusKey === 'ruins'), 'Объекты, от которых остались руины:') };
+    if (G.lPreserved.test(t)) return { html: listHTML(castles.map((c, i) => i).filter(i => castles[i].statusKey === 'preserved'), 'Хорошо сохранившиеся объекты:') };
+    if (G.lRestoring.test(t)) return { html: listHTML(castles.map((c, i) => i).filter(i => /восстан/.test(castles[i].status)), 'Сейчас восстанавливаются:') };
+    if (G.lCastles.test(t)) return { html: listHTML(castles.map((c, i) => i).filter(i => castles[i].type === 'castle'), 'Замки на нашем сайте:') };
+    if (G.recommend.test(t)) return {
+      html: `<p>С удовольствием посоветую!</p><ul>
+        <li><b>Впервые?</b> Начните с Мирского и Несвижского замков — оба в списке ЮНЕСКО и стоят всего в ~30 км друг от друга.</li>
+        <li><b>Любите мистику?</b> Руины Гольшан (Белая дама) и Крево (призрак Кейстута).</li>
+        <li><b>Романтикам</b> — сказочный неоготический Коссовский дворец.</li>
+        <li><b>Настоящее Средневековье</b> — Лидский замок, ему почти 700 лет.</li></ul>`,
+      chips: ['Сколько км от Мира до Несвижа?', 'Легенда о Белой даме', 'Коссовский дворец']
+    };
+    if (G.random.test(t)) { const i = Math.floor(Math.random() * castles.length); return { html: '<p>Случайный выбор пал на...</p>' + A.overview(i), ctx: i, chips: followChips([]) }; }
+
+    const lk = legendByKeyword(t);
+    if (lk >= 0) return featuredAnswer(lk);
+
+    if (ctx !== null && castleIntents().length) return castleAnswer(ctx);
+
+    if (INT.legend.test(t)) return {
+      html: '<p>Самые известные легенды на нашем сайте:</p><ul class="chat-list">' +
+        featuredLegends.map((l, k) => `<li><button class="chat-link" onclick="openLegend(${k})">${l.title}</button> <span>· ${castles[l.idx].name}</span></li>`).join('') + '</ul>'
+    };
+    if (G.battles.test(t)) return {
+      html: '<p>На карте отмечены места знаменитых битв:</p><ul>' + battles.map(b => `<li><b>${b.name}</b> (${b.year}) — ${b.text}</li>`).join('') + '</ul>'
+    };
+    if (G.greet.test(t)) return { html: '<p>Здравствуйте! Рад Вас видеть. Спросите меня о любом замке или дворце — например: «Где находится Мирский замок?»</p>', chips: START_CHIPS };
+    if (G.thanks.test(t) && t.split(' ').length <= 5) return { html: '<p>Всегда пожалуйста! Если появятся ещё вопросы о замках — я рядом.</p>' };
+    if (G.bye.test(t)) return { html: '<p>До встречи! Приятных путешествий дорогами замков Беларуси!</p>' };
+
+    if (Object.keys(INT).some(k => INT[k].test(t))) return {
+      html: '<p>О каком объекте Вы спрашиваете? Напишите его название, например: «Лидский замок».</p>',
+      chips: ['Мирский замок', 'Несвижский замок', 'Лидский замок', 'Кревский замок']
+    };
+
+    return {
+      html: '<p>Простите, я не совсем понял вопрос. Я лучше всего разбираюсь в замках и дворцах Беларуси. Попробуйте спросить, например:</p>',
+      chips: START_CHIPS
+    };
+  }
+
+  const scrollDown = () => body.scrollTo({ top: body.scrollHeight, behavior: 'smooth' });
+
+  function addMsg(role, html) {
+    const el = document.createElement('div');
+    el.className = 'msg ' + role;
+    el.innerHTML = (role.indexOf('bot') === 0 ? `<div class="m-ava">${KNIGHT}</div>` : '') + `<div class="bubble">${html}</div>`;
+    body.appendChild(el);
+    scrollDown();
+    return el;
+  }
+  function addChips(list) {
+    if (!list || !list.length) return;
+    const el = document.createElement('div');
+    el.className = 'chips';
+    list.forEach(txt => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'chip'; b.textContent = txt;
+      b.addEventListener('click', () => send(txt));
+      el.appendChild(b);
+    });
+    body.appendChild(el);
+    scrollDown();
+  }
+  function botSay(res, delay) {
+    busy = true;
+    const typing = addMsg('bot typing', '<span></span><span></span><span></span>');
+    setTimeout(() => {
+      typing.remove();
+      addMsg('bot', res.html);
+      addChips(res.chips);
+      if (res.ctx !== undefined && res.ctx !== null) ctx = res.ctx;
+      if (res.after) res.after();
+      busy = false;
+    }, delay);
+  }
+  function send(text) {
+    text = String(text || '').trim();
+    if (!text || busy) return;
+    body.querySelectorAll('.chips').forEach(c => c.remove());
+    addMsg('user', esc(text));
+    input.value = '';
+    let res;
+    try { res = answer(text); }
+    catch (e) { console.error(e); res = { html: 'Ой, что-то пошло не так. Попробуйте переформулировать вопрос.' }; }
+    botSay(res, 450 + Math.min(900, res.html.length));
+  }
+
+  function openChat() {
+    win.classList.add('open');
+    win.setAttribute('aria-hidden', 'false');
+    launcher.classList.add('open');
+    launcher.setAttribute('aria-label', 'Закрыть чат');
+    badge.classList.add('hide');
+    teaser.classList.remove('show');
+    if (!greeted) {
+      greeted = true;
+      botSay({
+        html: '<p>Добрый день! Я — <b>Ясь</b>, рыцарь-экскурсовод по замкам Беларуси.</p><p>Могу рассказать, где находится замок, когда и кем он построен, в каком он состоянии и какие легенды о нём ходят. <b>Чем могу Вам помочь?</b></p>',
+        chips: START_CHIPS
+      }, 700);
+    }
+    if (innerWidth > 760) setTimeout(() => input.focus(), 320);
+  }
+  function closeChat() {
+    win.classList.remove('open');
+    win.setAttribute('aria-hidden', 'true');
+    launcher.classList.remove('open');
+    launcher.setAttribute('aria-label', 'Открыть чат с рыцарем Ясем');
+  }
+
+  launcher.addEventListener('click', () => win.classList.contains('open') ? closeChat() : openChat());
+  $('chatClose').addEventListener('click', closeChat);
+  form.addEventListener('submit', e => { e.preventDefault(); send(input.value); });
+  teaser.addEventListener('click', e => { if (e.target.id !== 'teaserX') openChat(); });
+  $('teaserX').addEventListener('click', e => { e.stopPropagation(); teaser.classList.remove('show'); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && win.classList.contains('open') && !document.getElementById('modal').classList.contains('open')) closeChat();
+  });
+
+  setTimeout(() => { if (!greeted) teaser.classList.add('show'); }, 3500);
+  setTimeout(() => teaser.classList.remove('show'), 13000);
+
+  window.chatMap = i => { if (innerWidth <= 760) closeChat(); showOnMap(i); };
+  window.chatAboutIdx = i => send('Расскажи про ' + castles[i].name);
+  window.chatAsk = t => { if (!win.classList.contains('open')) openChat(); setTimeout(() => send(t), greeted ? 0 : 900); };
+})();
+</script>
+</body>
+</html>
